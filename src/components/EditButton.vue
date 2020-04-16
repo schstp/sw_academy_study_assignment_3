@@ -25,7 +25,7 @@ export default {
 
     img {
       padding: 2px;
-      border: solid 1px #FFFFFF;
+      border: solid 1px transparent;
       border-radius: 3px;
     }
 

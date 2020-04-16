@@ -1,29 +1,41 @@
 <template>
-  <div id="app" :class="[isLoggedIn ? 'todoapp-container' : 'auth-reg-container']">
+  <div id="app" :class="[isDataLoaded ? 'todoapp-container' : 'auth-reg-container']">
     <transition name="component-fade" mode="out-in">
       <router-view></router-view>
     </transition>
-    <NewTaskListModal :title="taskListModalTitle" :name-init="processingListTitle"></NewTaskListModal>
-    <NewTaskModal :title="taskModalTitle" :task="processingTask"></NewTaskModal>
+    <TaskListModal :title="taskListModalTitle" :name-init="processingListTitle"></TaskListModal>
+    <TaskModal :title="taskModalTitle" :task="processingTask"></TaskModal>
+    <DeleteTaskListModal></DeleteTaskListModal>
+    <DeleteTaskModal></DeleteTaskModal>
+    <RegisterSuccessModal></RegisterSuccessModal>
+    <LogoutConfirmationModal></LogoutConfirmationModal>
   </div>
 </template>
 
 <script>
-import NewTaskListModal from './components/NewTaskListModal'
-import NewTaskModal from './components/NewTaskModal'
+import TaskListModal from './components/TaskListModal'
+import TaskModal from './components/TaskModal'
+import RegisterSuccessModal from './components/RegisterSuccessModal'
+import LogoutConfirmationModal from './components/LogoutConfirmationModal'
+import DeleteTaskListModal from './components/DeleteTaskListModal'
+import DeleteTaskModal from './components/DeleteTaskModal'
 
 export default {
   name: 'App',
   components: {
-    NewTaskListModal,
-    NewTaskModal
+    TaskListModal,
+    TaskModal,
+    RegisterSuccessModal,
+    LogoutConfirmationModal,
+    DeleteTaskListModal,
+    DeleteTaskModal
   },
   data: function () {
     return {}
   },
   computed: {
-    isLoggedIn: function () {
-      return this.$store.getters.isLoggedIn
+    isDataLoaded: function () {
+      return this.$store.state.isDataLoaded
     },
     taskListModalTitle: function () {
       return this.$store.state.taskListModalStatus.method === 'POST' ? 'Создать задачу' : 'Редактировать задачу'
@@ -57,12 +69,6 @@ export default {
         }
       }
       return task
-    }
-  },
-  methods: {
-    logout: function () {
-      this.$store.dispatch('logout')
-        .then(() => { this.$router.push('/') })
     }
   },
   created: function () {

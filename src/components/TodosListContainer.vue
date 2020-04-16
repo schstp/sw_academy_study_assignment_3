@@ -1,7 +1,7 @@
 <template>
   <div id="left-container">
     <NavBar></NavBar>
-    <Dropdown class="filter" :options="filterOptions" dropdown-id="listFilter"></Dropdown>
+    <Dropdown class="filter" :options="filterOptions" dropdown-id="listFilter" v-model="filterStatus"></Dropdown>
     <AddButton text-content="Добавить задачу..."
                v-on:show-modal-dialog="callTaskListCreationDialog"
                class="add-task-btn">
@@ -19,12 +19,14 @@ import NavBar from './NavBar'
 import TodoList from './TodoList'
 import Dropdown from './Dropdown'
 import AddButton from './AddButton'
+import store from '../store'
 
 export default {
   name: 'TodosListContainer',
   data: function () {
     return {
-      filterOptions: ['Невыполненные', 'Выполненные', 'Все']
+      filterOptions: ['Невыполненные', 'Выполненные', 'Все'],
+      filterStatus: 0
     }
   },
   computed: {
@@ -36,6 +38,17 @@ export default {
         return this.$store.state.todoLists.length === 0
       }
       return null
+    }
+  },
+  watch: {
+    filterStatus: function (value) {
+      store.dispatch('get_todo_lists', value)
+        .then(() => {
+          this.$store.state.filterStatus = value
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     }
   },
   methods: {

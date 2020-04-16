@@ -10,8 +10,11 @@ export default new Vuex.Store({
     status: '',
     token: localStorage.getItem('token') || '',
     user: JSON.parse(localStorage.getItem('user')) || {},
+    isRegistrationFinished: false,
+    filterStatus: 0,
     todoLists: [],
     todos: [],
+    isDataLoaded: false,
     selected: null,
     taskListModalStatus: {
       isInProcess: false,
@@ -22,7 +25,20 @@ export default new Vuex.Store({
       isInProcess: false,
       method: 'POST',
       taskId: null
-    }
+    },
+    taskListDeletionModalStatus: {
+      isInProcess: false,
+      listId: null
+    },
+    taskDeletionModalStatus: {
+      isInProcess: false,
+      taskId: null
+    },
+    notificationsBoxStatus: {
+      isShown: false,
+      message: ''
+    },
+    isLogoutInProcess: false
   },
   mutations: {
     auth_request (state) {
@@ -42,6 +58,20 @@ export default new Vuex.Store({
     logout (state) {
       state.status = ''
       state.token = ''
+    },
+
+    get_todo_lists_request (state) {
+      state.status = 'loading'
+    },
+
+    get_todo_lists_success (state, todoLists) {
+      state.status = 'success'
+      state.todoLists = todoLists
+    },
+
+    get_todo_lists_error (state, error) {
+      state.status = 'error'
+      console.log(error)
     },
 
     add_todo_list_request (state) {
@@ -76,6 +106,39 @@ export default new Vuex.Store({
       console.log(error)
     },
 
+    delete_todo_list_request (state) {
+      state.status = 'loading'
+    },
+
+    delete_todo_list_success (state, listId) {
+      state.status = 'success'
+      const deletedList = state.todoLists.find(function (list) {
+        return list.id === this
+      }, listId)
+      const indexOfDeletedList = state.todoLists.indexOf(deletedList)
+      state.todoLists.splice(indexOfDeletedList, 1)
+    },
+
+    delete_todo_list_error (state, error) {
+      state.status = 'error'
+      console.log(error)
+    },
+
+    get_tasks_request (state) {
+      state.status = 'loading'
+    },
+
+    get_tasks_success (state, tasks) {
+      state.status = 'success'
+      state.todos = tasks
+      state.selected = state.todos[0] ? state.todos[0].id : null
+    },
+
+    get_tasks_error (state, error) {
+      state.status = 'error'
+      console.log(error)
+    },
+
     add_task_request (state) {
       state.status = 'loading'
     },
@@ -106,6 +169,37 @@ export default new Vuex.Store({
     update_task_error (state, error) {
       state.status = 'error'
       console.log(error)
+    },
+
+    delete_task_request (state) {
+      state.status = 'loading'
+    },
+
+    delete_task_success (state, taskId) {
+      state.status = 'success'
+      const deletedTask = state.todos.find(function (task) {
+        return task.id === this
+      }, taskId)
+      const indexOfDeletedTask = state.todos.indexOf(deletedTask)
+      state.todos.splice(indexOfDeletedTask, 1)
+    },
+
+    delete_task_error (state, error) {
+      state.status = 'error'
+      console.log(error)
+    },
+
+    change_task_status_request (state) {
+      state.status = 'loading'
+    },
+
+    change_task_status_success (state) {
+      state.status = 'success'
+    },
+
+    change_task_status_error (state, error) {
+      state.status = 'error'
+      console.log(error)
     }
   },
 
@@ -118,7 +212,6 @@ export default new Vuex.Store({
             if (!response.data.message) {
               const token = response.data.access_token
               const user = response.data.user
-              console.log(user)
               localStorage.setItem('token', token)
               localStorage.setItem('user', JSON.stringify(user))
               axios.defaults.headers.common.Authorization = token
@@ -167,7 +260,27 @@ export default new Vuex.Store({
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         delete axios.defaults.headers.common.Authorization
+        this.state.isDataLoaded = false
         resolve()
+      })
+    },
+
+    get_todo_lists ({ commit }, filter) {
+      console.log(filter)
+      return new Promise((resolve, reject) => {
+        commit('get_todo_lists_request')
+        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/`)
+          .then(response => {
+            commit('get_todo_lists_success', response.data)
+            if (response.data.length) {
+              this.dispatch('get_tasks', response.data[0].id)
+            }
+            resolve(response)
+          })
+          .catch(error => {
+            commit('get_todo_lists_error', error)
+            reject(error)
+          })
       })
     },
 
@@ -203,6 +316,36 @@ export default new Vuex.Store({
       })
     },
 
+    delete_todo_list ({ commit }) {
+      return new Promise((resolve, reject) => {
+        commit('delete_todo_list_request')
+        axios.delete(`https://my-json-server.typicode.com/schstp/todoapp/lists/${this.state.taskListDeletionModalStatus.listId}`)
+          .then(response => {
+            commit('delete_todo_list_success', this.state.taskListDeletionModalStatus.listId)
+            resolve(response)
+          })
+          .catch(error => {
+            commit('delete_todo_list_error', error)
+            reject(error)
+          })
+      })
+    },
+
+    get_tasks ({ commit }, listId) {
+      return new Promise((resolve, reject) => {
+        commit('get_tasks_request')
+        axios.get(`https://my-json-server.typicode.com/schstp/todoapp/lists/${listId}/tasks`)
+          .then(response => {
+            commit('get_tasks_success', response.data)
+            resolve(response)
+          })
+          .catch(error => {
+            commit('get_tasks_error', error)
+            reject(error)
+          })
+      })
+    },
+
     add_task ({ commit }, task) {
       return new Promise((resolve, reject) => {
         commit('add_task_request')
@@ -229,6 +372,36 @@ export default new Vuex.Store({
           })
           .catch(error => {
             commit('update_task_error', error)
+            reject(error)
+          })
+      })
+    },
+
+    delete_task ({ commit }) {
+      return new Promise((resolve, reject) => {
+        commit('delete_task_request')
+        axios.delete(`https://my-json-server.typicode.com/schstp/todoapp/tasks/${this.state.taskDeletionModalStatus.taskId}`)
+          .then(response => {
+            commit('delete_task_success', this.state.taskDeletionModalStatus.taskId)
+            resolve(response)
+          })
+          .catch(error => {
+            commit('delete_task_error', error)
+            reject(error)
+          })
+      })
+    },
+
+    change_task_status ({ commit }, task) {
+      return new Promise((resolve, reject) => {
+        commit('change_task_status_request')
+        axios.patch(`https://my-json-server.typicode.com/schstp/todoapp/tasks/mark_done/${task.id}`, task.payload)
+          .then(response => {
+            commit('change_task_status_success')
+            resolve(response)
+          })
+          .catch(error => {
+            commit('change_task_status_error', error)
             reject(error)
           })
       })

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import axios from 'axios'
 import store from '../store'
 import TodoApp from '../views/TodoApp.vue'
 import Login from '../views/Login.vue'
@@ -18,19 +17,9 @@ const routes = [
       requiresAuth: true
     },
     beforeEnter (to, from, next) {
-      axios.get('https://my-json-server.typicode.com/schstp/todoapp/lists')
-        .then(function (response) {
-          store.state.todoLists = response.data
-          if (store.state.todoLists.length) {
-            axios.get(`https://my-json-server.typicode.com/schstp/todoapp/lists/${store.state.todoLists[0].id}/tasks`)
-              .then(function (response) {
-                store.state.todos = response.data
-                store.state.selected = response.data[0] ? response.data[0].id : null
-              })
-              .catch(error => {
-                console.log(error)
-              })
-          }
+      store.dispatch('get_todo_lists', 0)
+        .then(() => {
+          store.state.isDataLoaded = true
           next()
         })
         .catch((error) => {

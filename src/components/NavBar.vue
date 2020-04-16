@@ -18,10 +18,7 @@ export default {
   },
   methods: {
     logout: function () {
-      this.$store.dispatch('logout', this.$store.state.user)
-        .then(() => {
-          this.$router.push('/login')
-        })
+      this.$store.state.isLogoutInProcess = true
     }
   }
 }

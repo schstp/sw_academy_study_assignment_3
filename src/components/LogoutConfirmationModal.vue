@@ -1,21 +1,10 @@
 <template>
   <div :class="['modal-wrapper', isVisible ? 'show-model':'']">
     <div class="new-task-model-wrapper">
-      <label for="taskListName">{{ title }}</label>
-      <input
-        type="text" id="taskListName"
-        placeholder="Введите название"
-        v-model="name"
-        :class="{'invalid': isNameInvalid}">
-      <transition name="bounce">
-        <div v-if="isNameInvalid">
-          <p v-if="nameIsEmpty">Введите название.</p>
-          <p v-else>Слишком длинное название (должно быть не больше 200 символов).</p>
-        </div>
-      </transition>
+      <label>{{ title }}</label>
       <div>
         <button @click="closeModal">Отмена</button>
-        <button @click="createNewTaskList">Сохранить</button>
+        <button @click="logout">Выйти</button>
       </div>
     </div>
   </div>
@@ -23,69 +12,27 @@
 
 <script>
 export default {
-  name: 'NewTaskListModal',
-  props: {
-    title: String,
-    nameInit: String
-  },
+  name: 'LogoutConfirmationModal',
   data: function () {
     return {
-      name: '',
-      isNameInvalid: false,
-      nameIsEmpty: false
+      title: 'Вы действительно хотите выйти?'
     }
   },
   computed: {
     isVisible: function () {
-      return this.$store.state.taskListModalStatus.isInProcess
-    },
-    type: function () {
-      return this.$store.state.taskListModalStatus.method === 'POST' ? 'add_todo_list' : 'update_todo_list'
-    }
-  },
-  watch: {
-    nameInit: function (value) {
-      this.name = value
+      return this.$store.state.isLogoutInProcess
     }
   },
   methods: {
     closeModal: function () {
-      this.$store.state.taskListModalStatus.isInProcess = false
-      this.name = ''
-      this.isNameInvalid = false
-      this.nameIsEmpty = false
+      this.$store.state.isLogoutInProcess = false
     },
-    createNewTaskList: function () {
-      if (this.validateForm()) {
-        const timestamp = new Date()
-        const taskList = {
-          action_name: this.name,
-          user_id: this.$store.state.user.id,
-          created_at: timestamp,
-          updated_at: timestamp
-        }
-
-        this.$store.dispatch(this.type, taskList)
-          .then((response) => {
-            this.closeModal()
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      }
-    },
-    validateForm: function () {
-      if (this.name.length === 0) {
-        this.isNameInvalid = true
-        this.nameIsEmpty = true
-        return false
-      } else if (this.name.length > 200) {
-        this.isNameInvalid = true
-        this.nameIsEmpty = false
-        return false
-      }
-
-      return true
+    logout: function () {
+      this.$store.dispatch('logout', this.$store.state.user)
+        .then(() => {
+          this.$router.push('/login')
+          this.$store.state.isLogoutInProcess = false
+        })
     }
   }
 }
@@ -113,7 +60,8 @@ export default {
     border-radius: 40px;
 
     label {
-      margin-bottom: 60px;
+      margin-top: 20px;
+      text-align: center;
       font-family: Roboto, sans-serif;
       font-style: normal;
       font-weight: normal;

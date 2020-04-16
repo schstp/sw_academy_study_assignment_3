@@ -5,12 +5,14 @@
       <input type="text"
              :placeholder="loginPlaceholder"
              v-model="login" required
-             :class="{'invalid': isDataInvalid}">
+             :class="{'invalid': isDataInvalid}"
+             @input="hideErrorBox">
 
       <input type="password"
              :placeholder="passwordPlaceholder"
              v-model="password" required
-             :class="{'invalid': isDataInvalid}">
+             :class="{'invalid': isDataInvalid}"
+             @input="hideErrorBox">
 
       <transition name="bounce">
         <div v-if="isDataInvalid">
@@ -72,6 +74,10 @@ export default {
   },
 
   methods: {
+    hideErrorBox: function () {
+      this.isDataInvalid = false
+      this.message = ''
+    },
     logIn: function () {
       const data = {
         login: this.login,
@@ -93,6 +99,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
-
+<style lang="scss" scoped>
+  .bounce-leave-active {
+    animation: bounce-in .5s reverse;
+  }
 </style>

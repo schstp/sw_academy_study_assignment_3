@@ -2,7 +2,7 @@
   <li>
     <div>
       <div>
-        <input type="checkbox" title="Отметить как выполненную">
+        <input type="checkbox" v-model="done" title="Отметить как выполненную">
         <p class="todo-titile" :title="title">{{ title }}</p>
       </div>
       <div>
@@ -54,10 +54,13 @@ export default {
   },
   data: function () {
     return {
-      id: this.todo.id
+      mark_done: null
     }
   },
   computed: {
+    id: function () {
+      return this.todo.id
+    },
     title: function () {
       return this.todo.task_name
     },
@@ -70,8 +73,39 @@ export default {
     importance: function () {
       return this.todo.important
     },
-    done: function () {
-      return this.todo.mark_done
+    done: {
+      get: function () {
+        return this.todo.mark_done
+      },
+      set: function (value) {
+        this.mark_done = value
+        const task = {
+          id: this.id,
+          payload: { mark_done: value }
+        }
+
+        this.$store.dispatch('change_task_status', task)
+          .then((response) => {
+            const list = this.$store.state.todoLists.find(function (list) {
+              return list.id === this
+            }, this.$store.state.selected)
+
+            list.status = response.data.status
+
+            if (this.$store.state.filterStatus === 0) {
+              if (list.status === 2) {
+                const indexOfList = this.$store.state.todoLists.indexOf(list)
+                this.$store.state.todoLists.splice(indexOfList, 1)
+              }
+            } else if (this.$store.filterStatus === 1) {
+              if (list.status !== 2) {
+                const indexOfList = this.$store.state.todoLists.indexOf(list)
+                this.$store.state.todoLists.splice(indexOfList, 1)
+              }
+            }
+          })
+          .catch()
+      }
     }
   },
   methods: {
@@ -83,7 +117,10 @@ export default {
       }
     },
     callTaskDeleteDialog: function () {
-      alert('task delete dialog must be implemented!')
+      this.$store.state.taskDeletionModalStatus = {
+        isInProcess: true,
+        taskId: this.id
+      }
     }
   },
   components: {

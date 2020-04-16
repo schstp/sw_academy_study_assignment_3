@@ -1,5 +1,5 @@
 <template>
-  <li :class="{'selected': selected }" @click="changeSelectedTodoList($event)">
+  <li :class="[selected ? 'selected' : '', status]" @click="changeSelectedTodoList($event)">
     <div>
       <p class="todo-list-titile" :title="title">{{ title }}</p>
       <div>
@@ -16,8 +16,7 @@
 <script>
 import EditButton from './EditButton'
 import DeleteButton from './DeleteButton'
-import axios from 'axios'
-import store from '../store'
+
 export default {
   name: 'TodoList',
   props: {
@@ -53,19 +52,26 @@ export default {
     },
     createdAt: function () {
       return new Date(this.todoList.created_at).toLocaleString('ru', this.dateFormatOptions)
+    },
+    status: function () {
+      if (this.todoList.status === 1) {
+        return 'green'
+      } else if (this.todoList.status === 2) {
+        return 'gray'
+      } else {
+        return 'white'
+      }
     }
   },
   methods: {
     changeSelectedTodoList: function (e) {
-      this.$store.state.selected = this.id
-      axios.get(`https://my-json-server.typicode.com/schstp/todoapp/lists/${this.id}/tasks`)
-        .then(function (response) {
-          store.state.todos = response.data
+      this.$store.dispatch('get_tasks', this.id)
+        .then(() => {
+          this.$store.state.selected = this.id
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error)
         })
-      this.$store.state.todos = this.todoList.tasks
     },
     callTodoListEditDialog: function () {
       this.$store.state.taskListModalStatus = {
@@ -75,7 +81,10 @@ export default {
       }
     },
     callTodoListDeleteDialog: function () {
-      alert('todo list delete dialog must be implemented!')
+      this.$store.state.taskListDeletionModalStatus = {
+        isInProcess: true,
+        listId: this.id
+      }
     }
   },
   components: {
@@ -102,6 +111,18 @@ export default {
 
     &.selected {
       border: 3px solid #2596FF;
+    }
+
+    &.white {
+      background-color: #FFFFFF;
+    }
+
+    &.green {
+      background-color: #DBFFDE;
+    }
+
+    &.gray {
+      background-color: #EFEFEF;
     }
 
     &:first-of-type {

@@ -1,107 +1,78 @@
 <template>
   <div :class="['modal-wrapper', isVisible ? 'show-model':'']">
     <div class="new-task-model-wrapper">
-      <label for="taskName"> {{ title }}</label>
+      <label for="taskListName">{{ title }}</label>
       <input
-        type="text" id="taskName"
-        placeholder="Введите название"
+        type="text" id="taskListName"
+        placeholder="Название"
         v-model="name"
         :class="{'invalid': isNameInvalid}">
       <transition name="bounce">
         <div v-if="isNameInvalid">
           <p v-if="nameIsEmpty">Введите название.</p>
-          <p v-else>Слишком длинное название (должно быть не больше 200 символов).</p>
+          <p v-else>Название не может быть больше 200 символов.</p>
         </div>
       </transition>
-      <textarea
-        placeholder="Краткое описание"
-        v-model="description"
-        :class="{'invalid': isDescriptionInvalid}"></textarea>
-      <transition name="bounce">
-        <div v-if="isDescriptionInvalid">
-          <p>Слишком длинное описание (должно быть не больше 500 символов).</p>
-        </div>
-      </transition>
-      <Dropdown ref="dropdown"
-        :options="importanceOptions"
-        class="importance" dropdown-id="importance"
-        v-model="importanceIndex">
-      </Dropdown>
       <div>
         <button @click="closeModal">Отмена</button>
-        <button @click="createNewTask">Сохранить</button>
+        <button @click="createNewTaskList">Сохранить</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Dropdown from './Dropdown'
-
 export default {
-  name: 'NewTaskModal',
-  components: { Dropdown },
+  name: 'NewTaskListModal',
   props: {
     title: String,
-    task: Object
+    nameInit: String
   },
   data: function () {
     return {
       name: '',
-      description: '',
-      importanceOptions: [1, 2, 3, 4, 5],
-      importanceIndex: 0,
       isNameInvalid: false,
-      nameIsEmpty: false,
-      isDescriptionInvalid: false
+      nameIsEmpty: false
     }
   },
   computed: {
     isVisible: function () {
-      return this.$store.state.taskModalStatus.isInProcess
+      return this.$store.state.taskListModalStatus.isInProcess
     },
     type: function () {
-      return this.$store.state.taskModalStatus.method === 'POST' ? 'add_task' : 'update_task'
+      return this.$store.state.taskListModalStatus.method === 'POST' ? 'add_todo_list' : 'update_todo_list'
     }
   },
   watch: {
-    task: function (value) {
-      this.name = value.task_name
-      this.description = value.description
-      this.importanceIndex = this.importanceOptions.indexOf(value.important)
-      const importanceFirstOptionEl = document
-        .querySelector(`#importance .custom-options > span[data-value='${this.importanceIndex}']`)
-      this.$refs.dropdown.changeSelected({ target: importanceFirstOptionEl })
+    nameInit: function (value) {
+      this.name = value
     }
   },
   methods: {
     closeModal: function () {
-      this.$store.state.taskModalStatus.isInProcess = false
+      this.$store.state.taskListModalStatus.isInProcess = false
       this.name = ''
-      this.description = ''
-      this.importanceIndex = 0
       this.isNameInvalid = false
       this.nameIsEmpty = false
-      this.isDescriptionInvalid = false
-      const importanceFirstOptionEl = document.querySelector('#importance .custom-options > span:first-of-type')
-      this.$refs.dropdown.changeSelected({ target: importanceFirstOptionEl })
     },
-    createNewTask: function () {
+    createNewTaskList: function () {
       if (this.validateForm()) {
         const timestamp = new Date()
-        const task = {
-          task_name: this.name,
-          listId: this.$store.state.selected,
+        const taskList = {
+          action_name: this.name,
           user_id: this.$store.state.user.id,
-          description: this.description,
-          important: this.importanceOptions[this.importanceIndex],
           created_at: timestamp,
           updated_at: timestamp
         }
 
-        this.$store.dispatch(this.type, task)
+        this.$store.dispatch(this.type, taskList)
           .then((response) => {
             this.closeModal()
+            const pofyfill = this.$store.state.taskListModalStatus.method === 'POST' ? 'добавлена' : 'изменена'
+            this.$store.state.notificationsBoxStatus = {
+              isShown: true,
+              message: `Задача успешно ${pofyfill}.`
+            }
           })
           .catch(error => {
             console.log(error)
@@ -117,15 +88,6 @@ export default {
         this.isNameInvalid = true
         this.nameIsEmpty = false
         return false
-      } else {
-        this.isNameInvalid = false
-      }
-
-      if (this.description.length > 500) {
-        this.isDescriptionInvalid = true
-        return false
-      } else {
-        this.isDescriptionInvalid = false
       }
 
       return true
@@ -148,10 +110,10 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    top: calc(50% - 318px);
+    top: calc(50% - 175px);
     left: calc(50% - 385px);
     width: 770px;
-    height: 636px;
+    height: 350px;
     background-color: #FFFFFF;
     border-radius: 40px;
 
@@ -209,7 +171,6 @@ export default {
     > div:last-of-type {
       margin-top: 50px;
     }
-
     button {
       box-sizing: border-box;
       width: 230px;
@@ -236,60 +197,6 @@ export default {
       }
     }
 
-    textarea {
-      box-sizing: border-box;
-      width: 570px;
-      height: 100px;
-      margin-top: 30px;
-      padding: 10px;
-      border: 1px solid #2596FF;
-      border-radius: 10px;
-
-      font-family: Roboto, sans-serif;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 24px;
-
-      outline: none;
-      resize: none;
-
-      &.invalid {
-        border-color: #DC3545;
-        box-shadow: 0 0  5px #DC3545;
-        animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
-      }
-
-      &::-webkit-scrollbar {
-        width: 5px;
-        height: 3px;
-        cursor: pointer;
-      }
-      &::-webkit-scrollbar-button {
-        display: none;
-      }
-      &::-webkit-scrollbar-track {
-        background-color: #999;
-      }
-      &::-webkit-scrollbar-track-piece {
-        background-color: #e8e8e8;
-      }
-      &::-webkit-scrollbar-thumb {
-        height: 50px;
-        background-color: #cecece;
-        border-radius: 3px;
-      }
-      &::-webkit-scrollbar-corner {
-        background-color: #999;
-        border-radius: 3px;
-      }
-      &::-webkit-resizer {
-        background-color:#666;
-      }
-    }
-    .importance {
-      width: 570px;
-      margin-top: 30px;
-    }
     p {
       width: 570px;
       margin-bottom: 0;

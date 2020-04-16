@@ -184,6 +184,7 @@ export default {
       this.$store.dispatch('register', user)
         .then(() => {
           this.$router.push('/')
+          this.$store.state.isRegistrationFinished = true
           this.loginExists = false
         })
         .catch(function (error) {
