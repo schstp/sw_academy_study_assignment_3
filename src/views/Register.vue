@@ -2,7 +2,11 @@
     <form name="registration" @submit.prevent="validateForm">
         <header><h1>{{ formTitle }}</h1></header>
         <div>
-            <input id="login" type="text" :placeholder="loginPlaceholder" v-model="login" autocomplete="off">
+            <input
+              id="login" type="text"
+              :placeholder="loginPlaceholder"
+              v-model="login" autocomplete="off"
+              :class="[isLoginInvalid || loginExists ? 'invalid' : '']">
             <transition name="bounce">
                 <div v-if="isLoginInvalid">
                     <p>Логин должен удовлетворять следующим условиям:</p>
@@ -11,12 +15,17 @@
                     </uL>
                 </div>
                 <div v-if="loginExists">
-                  <p>Пользователь с таким логином уже существует, выберите другой.</p>
+                  <p>{{ errorMessage }}</p>
                 </div>
             </transition>
 
-            <input id="password" type="password" :placeholder="passwordPlaceholder" v-model="password"
-                   autocomplete="off">
+            <input
+              id="password"
+              type="password"
+              :placeholder="passwordPlaceholder"
+              v-model="password"
+              autocomplete="off"
+              :class="{'invalid': isPasswordInvalid}">
             <transition name="bounce">
                 <div v-if="isPasswordInvalid">
                     <p>Пароль должен удовлетворять следующим условиям:</p>
@@ -26,8 +35,13 @@
                 </div>
             </transition>
 
-            <input id="passwordConfirmation" type="password" :placeholder="confirmPasswordPlaceholder"
-                   v-model="passwordConfirmation" autocomplete="off">
+            <input
+              id="passwordConfirmation"
+              type="password"
+              :placeholder="confirmPasswordPlaceholder"
+              v-model="passwordConfirmation"
+              autocomplete="off"
+              :class="{'invalid': isPasswordConfirmationInvalid}">
             <transition name="bounce">
                 <div v-if="isPasswordConfirmationInvalid">
                     <p>Введенные пароли не совпадают</p>
@@ -42,6 +56,8 @@
     </form>
 </template>
 <script>
+import { LoginError } from '../components/_errors'
+
 export default {
   name: 'Register',
   props: {
@@ -91,7 +107,7 @@ export default {
 
     passwordConstraints: {
       type: Array,
-      default: () => ['длина должна быть не менее 8 символов',
+      default: () => ['длина должна быть не менее 8 и не более 127 символов',
         'допустимы только буквы латинского алфавита, цифры и специальные символы',
         'как минимум 1 буква в нижнем регистре',
         'как минимум 1 буква в верхнем регистре',
@@ -118,7 +134,8 @@ export default {
       isLoginInvalid: false,
       loginExists: false,
       isPasswordInvalid: false,
-      isPasswordConfirmationInvalid: false
+      isPasswordConfirmationInvalid: false,
+      errorMessage: ''
     }
   },
 
@@ -127,17 +144,16 @@ export default {
       const login = document.getElementById('login')
       const password = document.getElementById('password')
       const passwordConfirmation = document.getElementById('passwordConfirmation')
+      this.loginExists = false
 
       if (login.value.length < 4 || login.value.length > 15 || !login.value.match(this.loginPattern)) {
         this.isLoginInvalid = true
-        login.classList.add('invalid')
         login.focus()
         return false
       } else this.hideErrorBox(login)
 
       if (!password.value.match(this.passwordPattern)) {
         this.isPasswordInvalid = true
-        password.classList.add('invalid')
 
         if (!this.isLoginInvalid) password.focus()
         return false
@@ -145,7 +161,6 @@ export default {
 
       if (passwordConfirmation.value !== password.value) {
         this.isPasswordConfirmationInvalid = true
-        passwordConfirmation.classList.add('invalid')
 
         if (!this.isLoginInvalid && !this.isPasswordInvalid) passwordConfirmation.focus()
         return false
@@ -155,8 +170,6 @@ export default {
     },
 
     hideErrorBox: function (input) {
-      input.classList.remove('invalid')
-
       if (input.id === 'login') this.isLoginInvalid = false
       else if (input.id === 'password') this.isPasswordInvalid = false
       else if (input.id === 'passwordConfirm') this.isPasswordConfirmationInvalid = false
@@ -165,15 +178,25 @@ export default {
     register: function () {
       const user = {
         login: this.login,
-        password: this.password
+        password: this.password,
+        password_confirmation: this.passwordConfirmation
       }
       this.$store.dispatch('register', user)
-        .then(() => this.$router.push('/'))
-        .catch(err => console.log(err))
+        .then(() => {
+          this.$router.push('/')
+          this.loginExists = false
+        })
+        .catch(function (error) {
+          if (error instanceof LoginError) {
+            this.errorMessage = error.message
+            this.loginExists = true
+          }
+        })
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+
 </style>

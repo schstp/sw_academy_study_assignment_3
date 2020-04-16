@@ -1,21 +1,62 @@
 <template>
-  <div id="app">
+  <div id="app" :class="[isLoggedIn ? 'todoapp-container' : 'auth-reg-container']">
     <transition name="component-fade" mode="out-in">
       <router-view></router-view>
     </transition>
+    <NewTaskListModal :title="taskListModalTitle" :name-init="processingListTitle"></NewTaskListModal>
+    <NewTaskModal :title="taskModalTitle" :task="processingTask"></NewTaskModal>
   </div>
 </template>
 
 <script>
+import NewTaskListModal from './components/NewTaskListModal'
+import NewTaskModal from './components/NewTaskModal'
 
 export default {
   name: 'App',
+  components: {
+    NewTaskListModal,
+    NewTaskModal
+  },
   data: function () {
     return {}
   },
   computed: {
     isLoggedIn: function () {
       return this.$store.getters.isLoggedIn
+    },
+    taskListModalTitle: function () {
+      return this.$store.state.taskListModalStatus.method === 'POST' ? 'Создать задачу' : 'Редактировать задачу'
+    },
+    processingListTitle: function () {
+      let title = ''
+      if (this.$store.state.taskListModalStatus.isInProcess) {
+        if (this.$store.state.taskListModalStatus.method === 'PATCH') {
+          title = this.$store.state.todoLists.find(function (list) {
+            return list.id === this
+          }, this.$store.state.taskListModalStatus.listId).action_name
+        }
+      }
+
+      return title
+    },
+
+    taskModalTitle: function () {
+      return this.$store.state.taskModalStatus.method === 'POST' ? 'Создать подзадачу' : 'Редактировать подзадачу'
+    },
+    processingTask: function () {
+      let task = {}
+      task.task_name = ''
+      task.description = ''
+      task.important = 1
+      if (this.$store.state.taskModalStatus.isInProcess) {
+        if (this.$store.state.taskModalStatus.method === 'PATCH') {
+          task = this.$store.state.todos.find(function (task) {
+            return task.id === this
+          }, this.$store.state.taskModalStatus.taskId)
+        }
+      }
+      return task
     }
   },
   methods: {
@@ -23,8 +64,6 @@ export default {
       this.$store.dispatch('logout')
         .then(() => { this.$router.push('/') })
     }
-  },
-  components: {
   },
   created: function () {
     this.$http.interceptors.response.use(undefined, function (error) {
@@ -48,10 +87,20 @@ export default {
   }
 
   #app {
-    height: 100%;
+    position: relative;
     display: flex;
+    height: 100%;
+  }
+
+  .auth-reg-container {
+    display: flex;
+    height: 100%;
     justify-content: center;
     align-items: center;
+  }
+
+  .todoapp-container {
+    height: auto;
   }
 
   .component-fade-enter-active, .component-fade-leave-active {

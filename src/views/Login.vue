@@ -2,9 +2,21 @@
   <form name="auth" @submit.prevent="logIn">
     <header><h1>{{ formTitle }}</h1></header>
     <div>
-      <input type="text" :placeholder="loginPlaceholder" v-model="login" required>
+      <input type="text"
+             :placeholder="loginPlaceholder"
+             v-model="login" required
+             :class="{'invalid': isDataInvalid}">
 
-      <input type="password" :placeholder="passwordPlaceholder" v-model="password" required>
+      <input type="password"
+             :placeholder="passwordPlaceholder"
+             v-model="password" required
+             :class="{'invalid': isDataInvalid}">
+
+      <transition name="bounce">
+        <div v-if="isDataInvalid">
+          <p>{{ errorMessage }}</p>
+        </div>
+      </transition>
 
       <input type="submit" :value="submitBtnText">
     </div>
@@ -14,6 +26,8 @@
   </form>
 </template>
 <script>
+import { AuthError } from '../components/_errors'
+
 export default {
   name: 'Auth',
   props: {
@@ -51,7 +65,9 @@ export default {
   data: function () {
     return {
       login: '',
-      password: ''
+      password: '',
+      isDataInvalid: false,
+      errorMessage: ''
     }
   },
 
@@ -62,12 +78,21 @@ export default {
         password: this.password
       }
       this.$store.dispatch('login', data)
-        .then(() => this.$router.push('/todoapp'))
-        .catch(error => console.log(error))
+        .then(() => {
+          this.$router.push('/')
+          this.isDataInvalid = false
+        })
+        .catch((error) => {
+          if (error instanceof AuthError) {
+            this.errorMessage = error.message
+            this.isDataInvalid = true
+          }
+        })
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+
 </style>
