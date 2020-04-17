@@ -67,6 +67,7 @@ export default new Vuex.Store({
     get_todo_lists_success (state, todoLists) {
       state.status = 'success'
       state.todoLists = todoLists
+      state.selected = state.todoLists[0] ? state.todoLists[0].id : null
     },
 
     get_todo_lists_error (state, error) {
@@ -131,7 +132,6 @@ export default new Vuex.Store({
     get_tasks_success (state, tasks) {
       state.status = 'success'
       state.todos = tasks
-      state.selected = state.todos[0] ? state.todos[0].id : null
     },
 
     get_tasks_error (state, error) {
@@ -269,12 +269,13 @@ export default new Vuex.Store({
       console.log(filter)
       return new Promise((resolve, reject) => {
         commit('get_todo_lists_request')
-        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/`)
+        // `http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`
+        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`)
           .then(response => {
-            commit('get_todo_lists_success', response.data)
-            if (response.data.length) {
-              this.dispatch('get_tasks', response.data[0].id)
-            }
+            commit('get_todo_lists_success', response.data.data)
+            /* if (response.data.data.length) {
+              this.dispatch('get_tasks', response.data.data[0].id)
+            } */
             resolve(response)
           })
           .catch(error => {
@@ -287,11 +288,9 @@ export default new Vuex.Store({
     add_todo_list ({ commit }, taskList) {
       return new Promise((resolve, reject) => {
         commit('add_todo_list_request')
-        axios.post('https://my-json-server.typicode.com/schstp/todoapp/lists', taskList)
+        axios.post(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`, taskList)
           .then(response => {
-            taskList.id = response.data.id
-            if (this.state.todoLists.length === 0) this.state.selected = taskList.id
-            commit('add_todo_list_success', taskList)
+            commit('add_todo_list_success', response.data.data.attributes)
             resolve(response)
           })
           .catch(error => {
@@ -304,9 +303,10 @@ export default new Vuex.Store({
     update_todo_list ({ commit }, taskList) {
       return new Promise((resolve, reject) => {
         commit('update_todo_list_request')
-        axios.patch(`https://my-json-server.typicode.com/schstp/todoapp/lists/${this.state.taskListModalStatus.listId}`, taskList)
+        axios.patch(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${this.state.taskListModalStatus.listId}`, taskList)
           .then(response => {
-            commit('update_todo_list_success', response.data)
+            console.log(response.data.date.attributes)
+            commit('update_todo_list_success', response.data.data.attributes)
             resolve(response)
           })
           .catch(error => {
@@ -319,7 +319,7 @@ export default new Vuex.Store({
     delete_todo_list ({ commit }) {
       return new Promise((resolve, reject) => {
         commit('delete_todo_list_request')
-        axios.delete(`https://my-json-server.typicode.com/schstp/todoapp/lists/${this.state.taskListDeletionModalStatus.listId}`)
+        axios.delete(`http://host1813162.hostland.pro/api/test/actions/${this.state.taskListDeletionModalStatus.listId}`)
           .then(response => {
             commit('delete_todo_list_success', this.state.taskListDeletionModalStatus.listId)
             resolve(response)
@@ -333,10 +333,12 @@ export default new Vuex.Store({
 
     get_tasks ({ commit }, listId) {
       return new Promise((resolve, reject) => {
+        console.log(listId)
         commit('get_tasks_request')
-        axios.get(`https://my-json-server.typicode.com/schstp/todoapp/lists/${listId}/tasks`)
+        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${listId}/tasks`)
           .then(response => {
-            commit('get_tasks_success', response.data)
+            console.log(response.data.data)
+            commit('get_tasks_success', response.data.data)
             resolve(response)
           })
           .catch(error => {
@@ -349,7 +351,8 @@ export default new Vuex.Store({
     add_task ({ commit }, task) {
       return new Promise((resolve, reject) => {
         commit('add_task_request')
-        axios.post('https://my-json-server.typicode.com/schstp/todoapp/tasks', task)
+        console.log(task.listId)
+        axios.post(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${task.listId}/tasks`, task)
           .then(response => {
             task.id = response.data.id
             commit('add_task_success', task)

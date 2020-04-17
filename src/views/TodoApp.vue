@@ -25,7 +25,7 @@ export default {
   #content {
     position: relative;
     display: flex;
-    width: 60%;
+    width: 1150px;
     margin: auto;
     margin-top: 50px;
 
