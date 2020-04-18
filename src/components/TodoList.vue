@@ -64,8 +64,9 @@ export default {
         return 2
       } else {
         for (let i = 0; i < this.tasks.length; i++) {
-          if (!this.tasks[0].mark_done) return 0
+          if (!this.tasks[i].mark_done) return 0
         }
+        console.log('сделана')
         return 1
       }
     },
