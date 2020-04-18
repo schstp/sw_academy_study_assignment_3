@@ -76,7 +76,7 @@ export default {
       }
     },
     validateForm: function () {
-      if (this.name.length === 0) {
+      if (this.name.trim().length === 0) {
         this.isNameInvalid = true
         this.nameIsEmpty = true
         return false

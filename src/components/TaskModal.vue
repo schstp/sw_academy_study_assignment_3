@@ -90,7 +90,7 @@ export default {
       if (this.validateForm()) {
         const task = {
           task_name: this.name,
-          description: this.description,
+          description: this.description.trim(),
           important: this.importanceOptions[this.importanceIndex]
         }
 
@@ -109,7 +109,7 @@ export default {
       }
     },
     validateForm: function () {
-      if (this.name.length === 0) {
+      if (this.name.trim().length === 0) {
         this.isNameInvalid = true
         this.nameIsEmpty = true
         return false
