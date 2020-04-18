@@ -88,15 +88,10 @@ export default {
     },
     createNewTask: function () {
       if (this.validateForm()) {
-        const timestamp = new Date()
         const task = {
           task_name: this.name,
-          listId: this.$store.state.selected,
-          user_id: this.$store.state.user.id,
           description: this.description,
-          important: this.importanceOptions[this.importanceIndex],
-          created_at: timestamp,
-          updated_at: timestamp
+          important: this.importanceOptions[+this.importanceIndex]
         }
 
         this.$store.dispatch(this.type, task)

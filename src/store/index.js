@@ -14,7 +14,6 @@ export default new Vuex.Store({
     filterStatus: 0,
     todoLists: [],
     todos: [],
-    isDataLoaded: false,
     selected: null,
     taskListModalStatus: {
       isInProcess: false,
@@ -66,8 +65,12 @@ export default new Vuex.Store({
 
     get_todo_lists_success (state, todoLists) {
       state.status = 'success'
-      state.todoLists = todoLists
-      state.selected = state.todoLists[0] ? state.todoLists[0].id : null
+      state.todoLists = todoLists.sort(function (listA, listB) {
+        const dateA = new Date(listA.created_at).getSeconds()
+        const dateB = new Date(listB.created_at).getSeconds()
+        return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
+      })
+      state.selected = state.todoLists.length > 0 ? state.todoLists[0].id : null
     },
 
     get_todo_lists_error (state, error) {
@@ -81,7 +84,8 @@ export default new Vuex.Store({
 
     add_todo_list_success (state, todoList) {
       state.status = 'success'
-      state.todoLists.push(todoList)
+      state.todoLists.unshift(todoList)
+      if (state.todoLists.length === 1) state.selected = todoList.id
     },
 
     add_todo_list_error (state, error) {
@@ -131,6 +135,11 @@ export default new Vuex.Store({
 
     get_tasks_success (state, tasks) {
       state.status = 'success'
+      tasks.sort(function (taskA, taskB) {
+        const dateA = new Date(taskA.created_at).getSeconds()
+        const dateB = new Date(taskB.created_at).getSeconds()
+        return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
+      })
       state.todos = tasks
     },
 
@@ -145,7 +154,7 @@ export default new Vuex.Store({
 
     add_task_success (state, task) {
       state.status = 'success'
-      state.todos.push(task)
+      state.todos.unshift(task)
     },
 
     add_task_error (state, error) {
@@ -259,23 +268,25 @@ export default new Vuex.Store({
         commit('logout')
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        this.state.todoLists = []
+        this.state.todos = []
+        this.state.selected = null
         delete axios.defaults.headers.common.Authorization
-        this.state.isDataLoaded = false
         resolve()
       })
     },
 
-    get_todo_lists ({ commit }, filter) {
+    get_todo_lists ({ commit, state }, filter) {
       console.log(filter)
       return new Promise((resolve, reject) => {
         commit('get_todo_lists_request')
         // `http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`
-        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`)
+        axios.get(`http://host1813162.hostland.pro/api/test/user/${state.user.id}/actions`)
           .then(response => {
             commit('get_todo_lists_success', response.data.data)
-            /* if (response.data.data.length) {
+            if (response.data.data.length) {
               this.dispatch('get_tasks', response.data.data[0].id)
-            } */
+            }
             resolve(response)
           })
           .catch(error => {
@@ -285,10 +296,10 @@ export default new Vuex.Store({
       })
     },
 
-    add_todo_list ({ commit }, taskList) {
+    add_todo_list ({ commit, state }, task) {
       return new Promise((resolve, reject) => {
         commit('add_todo_list_request')
-        axios.post(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`, taskList)
+        axios.post(`http://host1813162.hostland.pro/api/test/user/${state.user.id}/actions`, task)
           .then(response => {
             commit('add_todo_list_success', response.data.data.attributes)
             resolve(response)
@@ -300,12 +311,11 @@ export default new Vuex.Store({
       })
     },
 
-    update_todo_list ({ commit }, taskList) {
+    update_todo_list ({ commit, state }, taskList) {
       return new Promise((resolve, reject) => {
         commit('update_todo_list_request')
-        axios.patch(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${this.state.taskListModalStatus.listId}`, taskList)
+        axios.patch(`http://host1813162.hostland.pro/api/test/actions/${state.taskListModalStatus.listId}`, taskList)
           .then(response => {
-            console.log(response.data.date.attributes)
             commit('update_todo_list_success', response.data.data.attributes)
             resolve(response)
           })
@@ -316,12 +326,12 @@ export default new Vuex.Store({
       })
     },
 
-    delete_todo_list ({ commit }) {
+    delete_todo_list ({ commit, state }) {
       return new Promise((resolve, reject) => {
         commit('delete_todo_list_request')
-        axios.delete(`http://host1813162.hostland.pro/api/test/actions/${this.state.taskListDeletionModalStatus.listId}`)
+        axios.delete(`http://host1813162.hostland.pro/api/test/actions/${state.taskListDeletionModalStatus.listId}`)
           .then(response => {
-            commit('delete_todo_list_success', this.state.taskListDeletionModalStatus.listId)
+            commit('delete_todo_list_success', state.taskListDeletionModalStatus.listId)
             resolve(response)
           })
           .catch(error => {
@@ -333,12 +343,18 @@ export default new Vuex.Store({
 
     get_tasks ({ commit }, listId) {
       return new Promise((resolve, reject) => {
-        console.log(listId)
         commit('get_tasks_request')
-        axios.get(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${listId}/tasks`)
+        axios.get(`http://host1813162.hostland.pro/api/test/actions/${listId}/tasks`)
           .then(response => {
-            console.log(response.data.data)
-            commit('get_tasks_success', response.data.data)
+            if (response.data.data.attributes instanceof Object) {
+              const tasks = []
+              for (const taskIndex in response.data.data.attributes) {
+                tasks.push(response.data.data.attributes[taskIndex])
+              }
+              commit('get_tasks_success', tasks)
+            } else {
+              commit('get_tasks_success', response.data.data.attributes)
+            }
             resolve(response)
           })
           .catch(error => {
@@ -348,14 +364,12 @@ export default new Vuex.Store({
       })
     },
 
-    add_task ({ commit }, task) {
+    add_task ({ commit, state }, task) {
       return new Promise((resolve, reject) => {
         commit('add_task_request')
-        console.log(task.listId)
-        axios.post(`http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions/${task.listId}/tasks`, task)
+        axios.post(`http://host1813162.hostland.pro/api/test/user/${state.user.id}/actions/${state.selected}/tasks`, task)
           .then(response => {
-            task.id = response.data.id
-            commit('add_task_success', task)
+            commit('add_task_success', response.data.data.attributes)
             resolve(response)
           })
           .catch(error => {
@@ -365,12 +379,12 @@ export default new Vuex.Store({
       })
     },
 
-    update_task ({ commit }, task) {
+    update_task ({ commit, state }, task) {
       return new Promise((resolve, reject) => {
         commit('update_task_request')
-        axios.patch(`https://my-json-server.typicode.com/schstp/todoapp/tasks/${this.state.taskModalStatus.taskId}`, task)
+        axios.patch(`http://host1813162.hostland.pro/api/test/tasks/${state.taskModalStatus.taskId}`, task)
           .then(response => {
-            commit('update_task_success', response.data)
+            commit('update_task_success', response.data.data.attributes)
             resolve(response)
           })
           .catch(error => {
@@ -380,12 +394,12 @@ export default new Vuex.Store({
       })
     },
 
-    delete_task ({ commit }) {
+    delete_task ({ commit, state }) {
       return new Promise((resolve, reject) => {
         commit('delete_task_request')
-        axios.delete(`https://my-json-server.typicode.com/schstp/todoapp/tasks/${this.state.taskDeletionModalStatus.taskId}`)
+        axios.delete(`http://host1813162.hostland.pro/api/test/tasks/${state.taskDeletionModalStatus.taskId}`)
           .then(response => {
-            commit('delete_task_success', this.state.taskDeletionModalStatus.taskId)
+            commit('delete_task_success', state.taskDeletionModalStatus.taskId)
             resolve(response)
           })
           .catch(error => {
@@ -398,7 +412,7 @@ export default new Vuex.Store({
     change_task_status ({ commit }, task) {
       return new Promise((resolve, reject) => {
         commit('change_task_status_request')
-        axios.patch(`https://my-json-server.typicode.com/schstp/todoapp/tasks/mark_done/${task.id}`, task.payload)
+        axios.patch(`http://host1813162.hostland.pro/api/test/tasks/${task.id}/markdone`, task.payload)
           .then(response => {
             commit('change_task_status_success')
             resolve(response)

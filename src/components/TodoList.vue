@@ -54,9 +54,9 @@ export default {
       return new Date(this.todoList.created_at).toLocaleString('ru', this.dateFormatOptions)
     },
     status: function () {
-      if (this.todoList.status === 1) {
+      if (this.todoList.status === 0) {
         return 'green'
-      } else if (this.todoList.status === 2) {
+      } else if (this.todoList.status === 1) {
         return 'gray'
       } else {
         return 'white'

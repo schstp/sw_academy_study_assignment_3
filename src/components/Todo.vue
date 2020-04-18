@@ -90,18 +90,14 @@ export default {
               return list.id === this
             }, this.$store.state.selected)
 
-            list.status = response.data.status
+            list.status = response.data.data.status
 
-            if (this.$store.state.filterStatus === 0) {
-              if (list.status === 2) {
-                const indexOfList = this.$store.state.todoLists.indexOf(list)
-                this.$store.state.todoLists.splice(indexOfList, 1)
-              }
-            } else if (this.$store.filterStatus === 1) {
-              if (list.status !== 2) {
-                const indexOfList = this.$store.state.todoLists.indexOf(list)
-                this.$store.state.todoLists.splice(indexOfList, 1)
-              }
+            if ((this.$store.state.filterStatus === 0 && list.status === 1) ||
+              (this.$store.filterStatus === 1 && list.status !== 1)) {
+              const indexOfList = this.$store.state.todoLists.indexOf(list)
+              this.$store.state.todoLists.splice(indexOfList, 1)
+              if (this.$store.state.todoLists.length) this.$store.state.selected = this.$store.state.todoLists[0].id
+              else this.$store.state.selected = null
             }
           })
           .catch()
@@ -140,6 +136,7 @@ export default {
     padding: 20px;
     border: 1px solid #2596FF;
     border-radius: 10px;
+    background-color: #FFFFFF;
 
     &:first-of-type {
       margin-top: 0;

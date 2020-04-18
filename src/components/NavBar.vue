@@ -33,6 +33,7 @@ export default {
     justify-content: space-between;
     border: 1px solid #2596FF;
     border-radius: 10px;
+    background-color: #FFFFFF;
 
     div {
       margin-left: 20px;

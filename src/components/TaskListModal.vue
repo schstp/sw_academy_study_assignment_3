@@ -57,12 +57,8 @@ export default {
     },
     createNewTaskList: function () {
       if (this.validateForm()) {
-        const timestamp = new Date()
         const taskList = {
-          action_name: this.name,
-          user_id: this.$store.state.user.id,
-          created_at: timestamp,
-          updated_at: timestamp
+          action_name: this.name
         }
 
         this.$store.dispatch(this.type, taskList)

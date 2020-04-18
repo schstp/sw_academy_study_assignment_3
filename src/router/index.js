@@ -18,10 +18,7 @@ const routes = [
     },
     beforeEnter (to, from, next) {
       store.dispatch('get_todo_lists', 0)
-        .then(() => {
-          store.state.isDataLoaded = true
-          next()
-        })
+        .then(() => { next() })
         .catch((error) => {
           console.log(error)
         })

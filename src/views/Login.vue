@@ -1,31 +1,33 @@
 <template>
-  <form name="auth" @submit.prevent="logIn">
-    <header><h1>{{ formTitle }}</h1></header>
-    <div>
-      <input type="text"
-             :placeholder="loginPlaceholder"
-             v-model="login" required
-             :class="{'invalid': isDataInvalid}"
-             @input="hideErrorBox">
+  <transition name="fade">
+    <form name="auth" @submit.prevent="logIn" v-if="!this.$store.state.isLoggedIn">
+      <header><h1>{{ formTitle }}</h1></header>
+      <div>
+        <input type="text"
+               :placeholder="loginPlaceholder"
+               v-model="login" required
+               :class="{'invalid': isDataInvalid}"
+               @input="hideErrorBox">
 
-      <input type="password"
-             :placeholder="passwordPlaceholder"
-             v-model="password" required
-             :class="{'invalid': isDataInvalid}"
-             @input="hideErrorBox">
+        <input type="password"
+               :placeholder="passwordPlaceholder"
+               v-model="password" required
+               :class="{'invalid': isDataInvalid}"
+               @input="hideErrorBox">
 
-      <transition name="bounce">
-        <div v-if="isDataInvalid">
-          <p>{{ errorMessage }}</p>
-        </div>
-      </transition>
+        <transition name="bounce">
+          <div v-if="isDataInvalid">
+            <p>{{ errorMessage }}</p>
+          </div>
+        </transition>
 
-      <input type="submit" :value="submitBtnText">
-    </div>
-    <footer>
-      <p>{{ footerText }}  <router-link to="/register">{{ footerBtnText }}</router-link></p>
-    </footer>
-  </form>
+        <input type="submit" :value="submitBtnText">
+      </div>
+      <footer>
+        <p>{{ footerText }}  <router-link to="/register">{{ footerBtnText }}</router-link></p>
+      </footer>
+    </form>
+  </transition>
 </template>
 <script>
 import { AuthError } from '../components/_errors'

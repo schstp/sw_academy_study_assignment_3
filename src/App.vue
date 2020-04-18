@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="[isDataLoaded ? 'todoapp-container' : 'auth-reg-container']">
+  <div id="app" :class="[this.$store.state.isLoggedIn ? 'todoapp-container' : 'auth-reg-container']">
     <transition name="component-fade" mode="out-in">
       <router-view></router-view>
     </transition>
@@ -34,9 +34,6 @@ export default {
     return {}
   },
   computed: {
-    isDataLoaded: function () {
-      return this.$store.state.isDataLoaded
-    },
     taskListModalTitle: function () {
       return this.$store.state.taskListModalStatus.method === 'POST' ? 'Создать задачу' : 'Редактировать задачу'
     },

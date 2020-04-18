@@ -54,21 +54,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .right-container {
+    background-color: #fffef7;
+    border-radius: 5px;
+    padding: 0 10px;
+    padding-top: 10px;
+  }
+
   .add-task-btn {
     margin-bottom: 25px;
   }
   .empty-list{
     font-family: Roboto, sans-serif;
-    font-style: normal;
+    font-style: italic;
     font-weight: normal;
     font-size: 18px;
-    color: #B2B2B2;
+    color: #292929;
   }
   ul {
     margin: 0;
     padding-left: 0;
-    height: calc(100vh - 120px);
-    overflow-y: scroll;
+    height: calc(100vh - 130px);
+    overflow-y: auto;
 
   &::-webkit-scrollbar {
      width: 5px;

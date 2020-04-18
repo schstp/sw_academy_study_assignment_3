@@ -69,6 +69,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  #left-container {
+    background-color: #f6f9ff;
+    border-radius: 5px;
+    padding: 0 10px;
+    padding-top: 10px;
+    height: calc(100vh - 60px);
+  }
   .filter {
     margin-top: 60px;
     margin-bottom: 45px;
@@ -78,16 +85,16 @@ export default {
   }
   .empty-list{
     font-family: Roboto, sans-serif;
-    font-style: normal;
+    font-style: italic;
     font-weight: normal;
     font-size: 18px;
-    color: #B2B2B2;
+    color: #292929;
   }
   ul {
     margin: 0;
     padding-left: 0;
-    height: calc(100vh - 390px);
-    overflow-y: scroll;
+    height: calc(100vh - 400px);
+    overflow-y: auto;
 
     &::-webkit-scrollbar {
       width: 5px;
