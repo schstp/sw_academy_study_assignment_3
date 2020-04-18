@@ -91,7 +91,7 @@ export default {
         const task = {
           task_name: this.name,
           description: this.description,
-          important: this.importanceOptions[+this.importanceIndex]
+          important: this.importanceOptions[this.importanceIndex]
         }
 
         this.$store.dispatch(this.type, task)

@@ -86,19 +86,12 @@ export default {
 
         this.$store.dispatch('change_task_status', task)
           .then((response) => {
-            const list = this.$store.state.todoLists.find(function (list) {
+            const selectedList = this.$store.state.todoLists.find(function (list) {
               return list.id === this
             }, this.$store.state.selected)
-
-            list.status = response.data.data.status
-
-            if ((this.$store.state.filterStatus === 0 && list.status === 1) ||
-              (this.$store.filterStatus === 1 && list.status !== 1)) {
-              const indexOfList = this.$store.state.todoLists.indexOf(list)
-              this.$store.state.todoLists.splice(indexOfList, 1)
-              if (this.$store.state.todoLists.length) this.$store.state.selected = this.$store.state.todoLists[0].id
-              else this.$store.state.selected = null
-            }
+            const indexOfSelectedList = this.$store.state.todoLists.indexOf(selectedList)
+            const indexOfTask = this.$store.state.todoLists[indexOfSelectedList].tasks.indexOf(this.todo)
+            this.$store.state.todoLists[indexOfSelectedList].tasks[indexOfTask].mark_done = value
           })
           .catch()
       }

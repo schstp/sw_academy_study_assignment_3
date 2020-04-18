@@ -60,7 +60,11 @@ export default {
       task.important = 1
       if (this.$store.state.taskModalStatus.isInProcess) {
         if (this.$store.state.taskModalStatus.method === 'PATCH') {
-          task = this.$store.state.todos.find(function (task) {
+          const selectedList = this.$store.state.todoLists.find(function (list) {
+            return list.id === this
+          }, this.$store.state.selected)
+          const indexOfSelectedList = this.$store.state.todoLists.indexOf(selectedList)
+          task = this.$store.state.todoLists[indexOfSelectedList].tasks.find(function (task) {
             return task.id === this
           }, this.$store.state.taskModalStatus.taskId)
         }

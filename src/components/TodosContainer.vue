@@ -23,19 +23,27 @@ export default {
   name: 'TodosContainer',
   computed: {
     todos: function () {
-      return this.$store.state.todos
+      if (this.$store.state.selected === null) return []
+      const selectedList = this.$store.state.todoLists.find(function (list) {
+        return list.id === this
+      }, this.$store.state.selected)
+      selectedList.tasks.sort(function (taskA, taskB) {
+        const dateA = new Date(taskA.created_at)
+        const dateB = new Date(taskB.created_at)
+        return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
+      })
+      return selectedList.tasks
     },
     isTodoListsContainerEmpty: function () {
-      if (this.$store.state.todoLists) {
-        return this.$store.state.todoLists.length === 0
-      }
-      return null
+      return this.$store.state.filtered.length === 0
     },
     isEmpty: function () {
-      if (this.$store.state.todos) {
-        return this.$store.state.todos.length === 0
-      }
-      return null
+      if (this.$store.state.selected) {
+        const selectedList = this.$store.state.todoLists.find(function (list) {
+          return list.id === this
+        }, this.$store.state.selected)
+        return selectedList.tasks.length === 0
+      } else return true
     }
   },
   components: {

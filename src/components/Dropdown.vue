@@ -38,7 +38,7 @@ export default {
     changeSelected: function (e) {
       const option = e.target
       if (!option.classList.contains('selected')) {
-        this.$emit('input', option.getAttribute('data-value'))
+        this.$emit('input', +option.getAttribute('data-value'))
         option.parentNode.querySelector('.custom-option.selected').classList.remove('selected')
         option.classList.add('selected')
         option.closest('.custom-select')

@@ -30,22 +30,6 @@ export default {
     deleteTaskList: function () {
       this.$store.dispatch('delete_todo_list')
         .then((response) => {
-          const deletedListId = this.$store.state.taskListDeletionModalStatus.listId
-          const selectedId = this.$store.state.selected
-          const todoLists = this.$store.state.todoLists
-
-          if (deletedListId === selectedId) {
-            if (todoLists.length) {
-              this.$store.dispatch('get_tasks', todoLists[0].id)
-                .then(() => {
-                  this.$store.state.selected = todoLists[0].id
-                })
-                .catch((error) => {
-                  console.log(error)
-                })
-            }
-          }
-
           this.$store.state.notificationsBoxStatus = {
             isShown: true,
             message: 'Задача успешно удалена.'

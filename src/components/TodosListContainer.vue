@@ -19,7 +19,6 @@ import NavBar from './NavBar'
 import TodoList from './TodoList'
 import Dropdown from './Dropdown'
 import AddButton from './AddButton'
-import store from '../store'
 
 export default {
   name: 'TodosListContainer',
@@ -34,21 +33,12 @@ export default {
       return this.$store.state.todoLists
     },
     isEmpty: function () {
-      if (this.$store.state.todoLists) {
-        return this.$store.state.todoLists.length === 0
-      }
-      return null
+      return this.$store.state.todoLists.length === 0
     }
   },
   watch: {
     filterStatus: function (value) {
-      store.dispatch('get_todo_lists', value)
-        .then(() => {
-          this.$store.state.filterStatus = value
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+      this.$store.state.filterStatus = value
     }
   },
   methods: {

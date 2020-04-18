@@ -13,7 +13,7 @@ export default new Vuex.Store({
     isRegistrationFinished: false,
     filterStatus: 0,
     todoLists: [],
-    todos: [],
+    filtered: [],
     selected: null,
     taskListModalStatus: {
       isInProcess: false,
@@ -70,7 +70,12 @@ export default new Vuex.Store({
         const dateB = new Date(listB.created_at).getSeconds()
         return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
       })
-      state.selected = state.todoLists.length > 0 ? state.todoLists[0].id : null
+      if (state.todoLists.length) {
+        state.selected = state.todoLists[0].id
+      } else {
+        state.selected = null
+        state.todos = []
+      }
     },
 
     get_todo_lists_error (state, error) {
@@ -103,6 +108,7 @@ export default new Vuex.Store({
         return list.id === todoList.id
       })
       const indexOfUpdatedList = this.state.todoLists.indexOf(updatedList)
+      todoList.tasks = updatedList.tasks
       Vue.set(this.state.todoLists, indexOfUpdatedList, todoList)
     },
 
@@ -117,6 +123,15 @@ export default new Vuex.Store({
 
     delete_todo_list_success (state, listId) {
       state.status = 'success'
+      state.filtered.splice(state.filtered.indexOf(listId), 1)
+
+      if (listId === state.selected) {
+        if (state.filtered.length) {
+          state.selected = state.filtered[0]
+        } else {
+          state.selected = null
+        }
+      }
       const deletedList = state.todoLists.find(function (list) {
         return list.id === this
       }, listId)
@@ -154,7 +169,11 @@ export default new Vuex.Store({
 
     add_task_success (state, task) {
       state.status = 'success'
-      state.todos.unshift(task)
+      const selectedList = state.todoLists.find(function (list) {
+        return list.id === state.selected
+      })
+      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
+      state.todoLists[indexOfSelectedList].tasks.unshift(task)
     },
 
     add_task_error (state, error) {
@@ -168,11 +187,15 @@ export default new Vuex.Store({
 
     update_task_success (state, task) {
       state.status = 'success'
-      const updatedTask = state.todos.find(function (task) {
+      const selectedList = state.todoLists.find(function (list) {
+        return list.id === state.selected
+      })
+      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
+      const updatedTask = state.todoLists[indexOfSelectedList].tasks.find(function (task) {
         return task.id === this
       }, task.id)
-      const indexOfUpdatedTask = this.state.todos.indexOf(updatedTask)
-      Vue.set(this.state.todos, indexOfUpdatedTask, task)
+      const indexOfUpdatedTask = this.state.todoLists[indexOfSelectedList].tasks.indexOf(updatedTask)
+      Vue.set(state.todoLists[indexOfSelectedList].tasks, indexOfUpdatedTask, task)
     },
 
     update_task_error (state, error) {
@@ -186,11 +209,15 @@ export default new Vuex.Store({
 
     delete_task_success (state, taskId) {
       state.status = 'success'
-      const deletedTask = state.todos.find(function (task) {
+      const selectedList = state.todoLists.find(function (list) {
+        return list.id === state.selected
+      })
+      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
+      const deletedTask = state.todoLists[indexOfSelectedList].tasks.find(function (task) {
         return task.id === this
       }, taskId)
-      const indexOfDeletedTask = state.todos.indexOf(deletedTask)
-      state.todos.splice(indexOfDeletedTask, 1)
+      const indexOfDeletedTask = state.todoLists[indexOfSelectedList].tasks.indexOf(deletedTask)
+      state.todoLists[indexOfSelectedList].tasks.splice(indexOfDeletedTask, 1)
     },
 
     delete_task_error (state, error) {
@@ -276,17 +303,13 @@ export default new Vuex.Store({
       })
     },
 
-    get_todo_lists ({ commit, state }, filter) {
-      console.log(filter)
+    get_todo_lists ({ commit, state }) {
       return new Promise((resolve, reject) => {
         commit('get_todo_lists_request')
         // `http://host1813162.hostland.pro/api/test/user/${this.state.user.id}/actions`
         axios.get(`http://host1813162.hostland.pro/api/test/user/${state.user.id}/actions`)
           .then(response => {
             commit('get_todo_lists_success', response.data.data)
-            if (response.data.data.length) {
-              this.dispatch('get_tasks', response.data.data[0].id)
-            }
             resolve(response)
           })
           .catch(error => {
@@ -301,6 +324,7 @@ export default new Vuex.Store({
         commit('add_todo_list_request')
         axios.post(`http://host1813162.hostland.pro/api/test/user/${state.user.id}/actions`, task)
           .then(response => {
+            response.data.data.attributes.tasks = []
             commit('add_todo_list_success', response.data.data.attributes)
             resolve(response)
           })

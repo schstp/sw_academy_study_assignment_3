@@ -17,7 +17,7 @@ const routes = [
       requiresAuth: true
     },
     beforeEnter (to, from, next) {
-      store.dispatch('get_todo_lists', 0)
+      store.dispatch('get_todo_lists')
         .then(() => { next() })
         .catch((error) => {
           console.log(error)

@@ -1,5 +1,8 @@
 <template>
-  <li :class="[selected ? 'selected' : '', status]" @click="changeSelectedTodoList($event)">
+  <li
+    :class="[selected ? 'selected' : '', statusColor]"
+    @click="changeSelectedTodoList($event)"
+    v-if="isVisible">
     <div>
       <p class="todo-list-titile" :title="title">{{ title }}</p>
       <div>
@@ -53,25 +56,57 @@ export default {
     createdAt: function () {
       return new Date(this.todoList.created_at).toLocaleString('ru', this.dateFormatOptions)
     },
+    tasks: function () {
+      return this.todoList.tasks
+    },
     status: function () {
-      if (this.todoList.status === 0) {
+      if (this.tasks.length === 0) {
+        return 2
+      } else {
+        for (let i = 0; i < this.tasks.length; i++) {
+          if (!this.tasks[0].mark_done) return 0
+        }
+        return 1
+      }
+    },
+    statusColor: function () {
+      if (this.status === 0) {
         return 'green'
-      } else if (this.todoList.status === 1) {
+      } else if (this.status === 1) {
         return 'gray'
       } else {
         return 'white'
       }
+    },
+    isVisible: function () {
+      if (this.$store.state.filterStatus === 2) return true
+      else {
+        if (this.$store.state.filterStatus === 0 && (this.status === 0 || this.status === 2)) return true
+        else return this.$store.state.filterStatus === 1 && this.status === 1
+      }
+    }
+  },
+  watch: {
+    isVisible: function (value) {
+      console.log('!')
+      if (value) {
+        this.$store.state.filtered.push(this.id)
+      } else if (this.$store.state.filtered.includes(this.id)) {
+        this.$store.state.filtered.splice(this.$store.state.filtered.indexOf(this.id), 1)
+      }
+
+      if (this.$store.state.filtered.length === 0) {
+        this.$store.state.selected = null
+      } else {
+        this.$store.state.selected = this.$store.state.filtered[0]
+      }
+      console.log(this.$store.state.filtered)
     }
   },
   methods: {
     changeSelectedTodoList: function (e) {
-      this.$store.dispatch('get_tasks', this.id)
-        .then(() => {
-          this.$store.state.selected = this.id
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+      this.$store.state.selected = this.id
+      this.$store.state.todos = this.tasks
     },
     callTodoListEditDialog: function () {
       this.$store.state.taskListModalStatus = {
@@ -90,6 +125,19 @@ export default {
   components: {
     EditButton,
     DeleteButton
+  },
+  beforeMount () {
+    if (this.isVisible) {
+      this.$store.state.filtered.push(this.id)
+    } else if (this.$store.state.filtered.includes(this.id)) {
+      this.$store.state.filtered.splice(this.$store.state.filtered.indexOf(this.id), 1)
+    }
+
+    if (this.$store.state.filtered.length === 0) {
+      this.$store.state.selected = null
+    } else {
+      this.$store.state.selected = this.$store.state.filtered[0]
+    }
   }
 }
 </script>
