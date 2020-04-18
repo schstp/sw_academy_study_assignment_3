@@ -88,7 +88,6 @@ export default {
   },
   watch: {
     isVisible: function (value) {
-      console.log('!')
       if (value) {
         this.$store.state.filtered.push(this.id)
       } else if (this.$store.state.filtered.includes(this.id)) {
@@ -100,7 +99,6 @@ export default {
       } else {
         this.$store.state.selected = this.$store.state.filtered[0]
       }
-      console.log(this.$store.state.filtered)
     }
   },
   methods: {
