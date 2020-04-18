@@ -66,7 +66,6 @@ export default {
         for (let i = 0; i < this.tasks.length; i++) {
           if (!this.tasks[i].mark_done) return 0
         }
-        console.log('сделана')
         return 1
       }
     },
