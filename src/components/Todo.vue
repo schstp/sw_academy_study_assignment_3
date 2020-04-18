@@ -183,6 +183,7 @@ export default {
         font-weight: normal;
         font-size: 14px;
         color: #B2B2B2;
+        word-wrap: break-word;
       }
 
       &.note-wrapper {
