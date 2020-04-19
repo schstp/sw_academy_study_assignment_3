@@ -24,26 +24,18 @@ export default {
   computed: {
     todos: function () {
       if (this.$store.state.selected === null) return []
-      const selectedList = this.$store.state.todoLists.find(function (list) {
-        return list.id === this
-      }, this.$store.state.selected)
-      selectedList.tasks.sort(function (taskA, taskB) {
+      const tasks = this.$store.getters.selectedTaskList.tasks
+      return tasks.sort(function (taskA, taskB) {
         const dateA = new Date(taskA.created_at)
         const dateB = new Date(taskB.created_at)
         return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
       })
-      return selectedList.tasks
     },
     isTodoListsContainerEmpty: function () {
       return this.$store.state.filtered.length === 0
     },
     isEmpty: function () {
-      if (this.$store.state.selected) {
-        const selectedList = this.$store.state.todoLists.find(function (list) {
-          return list.id === this
-        }, this.$store.state.selected)
-        return selectedList.tasks.length === 0
-      } else return true
+      return this.$store.state.selected ? this.$store.getters.selectedTaskList.tasks.length === 0 : true
     }
   },
   components: {

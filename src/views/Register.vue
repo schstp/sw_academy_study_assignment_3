@@ -56,8 +56,6 @@
     </form>
 </template>
 <script>
-import { LoginError } from '../components/_errors'
-
 export default {
   name: 'Register',
   props: {
@@ -187,11 +185,9 @@ export default {
           this.$store.state.isRegistrationFinished = true
           this.loginExists = false
         })
-        .catch(function (error) {
-          if (error instanceof LoginError) {
-            this.errorMessage = error.message
-            this.loginExists = true
-          }
+        .catch(() => {
+          this.errorMessage = 'Пользователь с таким логином уже существует, выберите другой.'
+          this.loginExists = true
         })
     }
   }

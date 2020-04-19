@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
-import { LoginError, AuthError } from '../components/_errors'
+import { AuthError } from '../components/_errors'
 
 Vue.use(Vuex)
 
@@ -41,17 +41,17 @@ export default new Vuex.Store({
   },
   mutations: {
     auth_request (state) {
-      state.status = 'loading'
+      state.status = 'authentication:loading'
     },
 
     auth_success (state, { token, user }) {
-      state.status = 'success'
+      state.status = 'authentication:success'
       state.token = token
       state.user = user
     },
 
     auth_error (state) {
-      state.status = 'error'
+      state.status = 'authentication:error'
     },
 
     logout (state) {
@@ -60,181 +60,134 @@ export default new Vuex.Store({
     },
 
     get_todo_lists_request (state) {
-      state.status = 'loading'
+      state.status = 'get_lists:loading'
     },
 
     get_todo_lists_success (state, todoLists) {
-      state.status = 'success'
+      state.status = 'get_lists:success'
+
       state.todoLists = todoLists.sort(function (listA, listB) {
-        const dateA = new Date(listA.created_at).getSeconds()
-        const dateB = new Date(listB.created_at).getSeconds()
+        const dateA = new Date(listA.created_at)
+        const dateB = new Date(listB.created_at)
         return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
       })
-      if (state.todoLists.length) {
-        state.selected = state.todoLists[0].id
-      } else {
-        state.selected = null
-        state.todos = []
-      }
+
+      state.selected = state.todoLists.length ? state.todoLists[0].id : null
     },
 
     get_todo_lists_error (state, error) {
-      state.status = 'error'
+      state.status = 'get_lists:error'
       console.log(error)
     },
 
     add_todo_list_request (state) {
-      state.status = 'loading'
+      state.status = 'add_list:loading'
     },
 
     add_todo_list_success (state, todoList) {
-      state.status = 'success'
+      state.status = 'add_list:success'
       state.todoLists.unshift(todoList)
       if (state.todoLists.length === 1) state.selected = todoList.id
     },
 
     add_todo_list_error (state, error) {
-      state.status = 'error'
+      state.status = 'add_list:error'
       console.log(error)
     },
 
     update_todo_list_request (state) {
-      state.status = 'loading'
+      state.status = 'update_list:loading'
     },
 
     update_todo_list_success (state, todoList) {
-      state.status = 'success'
-      const updatedList = state.todoLists.find(function (list) {
-        return list.id === todoList.id
-      })
+      state.status = 'update_list:success'
+      const updatedList = state.todoLists.find(list => list.id === todoList.id)
       const indexOfUpdatedList = this.state.todoLists.indexOf(updatedList)
       todoList.tasks = updatedList.tasks
       Vue.set(this.state.todoLists, indexOfUpdatedList, todoList)
     },
 
     update_todo_list_error (state, error) {
-      state.status = 'error'
+      state.status = 'update_list:error'
       console.log(error)
     },
 
     delete_todo_list_request (state) {
-      state.status = 'loading'
+      state.status = 'delete_list:loading'
     },
 
     delete_todo_list_success (state, listId) {
-      state.status = 'success'
+      state.status = 'delete_list:success'
       state.filtered.splice(state.filtered.indexOf(listId), 1)
 
       if (listId === state.selected) {
-        if (state.filtered.length) {
-          state.selected = state.filtered[0]
-        } else {
-          state.selected = null
-        }
+        state.selected = state.filtered.length ? state.filtered[0] : null
       }
-      const deletedList = state.todoLists.find(function (list) {
-        return list.id === this
-      }, listId)
-      const indexOfDeletedList = state.todoLists.indexOf(deletedList)
+      const indexOfDeletedList = state.todoLists.findIndex(list => list.id === listId)
       state.todoLists.splice(indexOfDeletedList, 1)
     },
 
     delete_todo_list_error (state, error) {
-      state.status = 'error'
-      console.log(error)
-    },
-
-    get_tasks_request (state) {
-      state.status = 'loading'
-    },
-
-    get_tasks_success (state, tasks) {
-      state.status = 'success'
-      tasks.sort(function (taskA, taskB) {
-        const dateA = new Date(taskA.created_at).getSeconds()
-        const dateB = new Date(taskB.created_at).getSeconds()
-        return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
-      })
-      state.todos = tasks
-    },
-
-    get_tasks_error (state, error) {
-      state.status = 'error'
+      state.status = 'delete_list:error'
       console.log(error)
     },
 
     add_task_request (state) {
-      state.status = 'loading'
+      state.status = 'add_task:loading'
     },
 
     add_task_success (state, task) {
-      state.status = 'success'
-      const selectedList = state.todoLists.find(function (list) {
-        return list.id === state.selected
-      })
-      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
-      state.todoLists[indexOfSelectedList].tasks.unshift(task)
+      state.status = 'add_task:success'
+      this.getters.selectedTaskList.tasks.unshift(task)
     },
 
     add_task_error (state, error) {
-      state.status = 'error'
+      state.status = 'add_task:error'
       console.log(error)
     },
 
     update_task_request (state) {
-      state.status = 'loading'
+      state.status = 'update_task:loading'
     },
 
     update_task_success (state, task) {
-      state.status = 'success'
-      const selectedList = state.todoLists.find(function (list) {
-        return list.id === state.selected
-      })
-      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
-      const updatedTask = state.todoLists[indexOfSelectedList].tasks.find(function (task) {
-        return task.id === this
-      }, task.id)
-      const indexOfUpdatedTask = this.state.todoLists[indexOfSelectedList].tasks.indexOf(updatedTask)
-      Vue.set(state.todoLists[indexOfSelectedList].tasks, indexOfUpdatedTask, task)
+      state.status = 'update_task:success'
+      const tasksOfSelectedTaskList = this.getters.selectedTaskList.tasks
+      const indexOfUpdatedTask = tasksOfSelectedTaskList.findIndex(_task => _task.id === task.id)
+      Vue.set(tasksOfSelectedTaskList, indexOfUpdatedTask, task)
     },
 
     update_task_error (state, error) {
-      state.status = 'error'
+      state.status = 'update_task:error'
       console.log(error)
     },
 
     delete_task_request (state) {
-      state.status = 'loading'
+      state.status = 'delete_task:loading'
     },
 
     delete_task_success (state, taskId) {
-      state.status = 'success'
-      const selectedList = state.todoLists.find(function (list) {
-        return list.id === state.selected
-      })
-      const indexOfSelectedList = state.todoLists.indexOf(selectedList)
-      const deletedTask = state.todoLists[indexOfSelectedList].tasks.find(function (task) {
-        return task.id === this
-      }, taskId)
-      const indexOfDeletedTask = state.todoLists[indexOfSelectedList].tasks.indexOf(deletedTask)
-      state.todoLists[indexOfSelectedList].tasks.splice(indexOfDeletedTask, 1)
+      state.status = 'delete_task:success'
+      const tasksOfSelectedTaskList = this.getters.selectedTaskList.tasks
+      const deletedTaskIndex = tasksOfSelectedTaskList.findIndex(task => task.id === taskId)
+      tasksOfSelectedTaskList.splice(deletedTaskIndex, 1)
     },
 
     delete_task_error (state, error) {
-      state.status = 'error'
+      state.status = 'delete_task:error'
       console.log(error)
     },
 
     change_task_status_request (state) {
-      state.status = 'loading'
+      state.status = 'mark_done_task:loading'
     },
 
     change_task_status_success (state) {
-      state.status = 'success'
+      state.status = 'mark_done_task:success'
     },
 
     change_task_status_error (state, error) {
-      state.status = 'error'
+      state.status = 'mark_done_task:error'
       console.log(error)
     }
   },
@@ -270,17 +223,13 @@ export default new Vuex.Store({
         commit('auth_request')
         axios({ url: 'http://host1813162.hostland.pro/api/test/register', data: user, method: 'POST' })
           .then(response => {
-            if (!response.data.errors) {
-              const token = response.data.access_token
-              const user = response.data.user
-              localStorage.setItem('token', token)
-              localStorage.setItem('user', JSON.stringify(user))
-              axios.defaults.headers.common.Authorization = token
-              commit('auth_success', { token, user })
-              resolve(response)
-            } else {
-              reject(new LoginError(response.data.errors.login))
-            }
+            const token = response.data.access_token
+            const user = response.data.user
+            localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify(user))
+            axios.defaults.headers.common.Authorization = token
+            commit('auth_success', { token, user })
+            resolve(response)
           })
           .catch(error => {
             commit('auth_error', error)
@@ -365,29 +314,6 @@ export default new Vuex.Store({
       })
     },
 
-    get_tasks ({ commit }, listId) {
-      return new Promise((resolve, reject) => {
-        commit('get_tasks_request')
-        axios.get(`http://host1813162.hostland.pro/api/test/actions/${listId}/tasks`)
-          .then(response => {
-            if (response.data.data.attributes instanceof Object) {
-              const tasks = []
-              for (const taskIndex in response.data.data.attributes) {
-                tasks.push(response.data.data.attributes[taskIndex])
-              }
-              commit('get_tasks_success', tasks)
-            } else {
-              commit('get_tasks_success', response.data.data.attributes)
-            }
-            resolve(response)
-          })
-          .catch(error => {
-            commit('get_tasks_error', error)
-            reject(error)
-          })
-      })
-    },
-
     add_task ({ commit, state }, task) {
       return new Promise((resolve, reject) => {
         commit('add_task_request')
@@ -451,7 +377,7 @@ export default new Vuex.Store({
 
   getters: {
     isLoggedIn: state => !!state.token,
-    authStatus: state => state.status
+    selectedTaskList: state => state.todoLists.find((list) => list.id === state.selected)
   },
 
   modules: {

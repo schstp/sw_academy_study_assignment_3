@@ -2,7 +2,8 @@
   <li>
     <div>
       <div>
-        <input type="checkbox" v-model="done" title="Отметить как выполненную">
+        <input :id="id" type="checkbox" v-model="done" title="Отметить как выполненную">
+        <label :for="id"><img :src="`./${publicPath}/img/done-icon.png`" v-if="done"></label>
         <p class="todo-titile" :title="title">{{ title }}</p>
       </div>
       <div>
@@ -54,7 +55,8 @@ export default {
   },
   data: function () {
     return {
-      mark_done: null
+      mark_done: null,
+      publicPath: process.env.BASE_URL
     }
   },
   computed: {
@@ -86,12 +88,7 @@ export default {
 
         this.$store.dispatch('change_task_status', task)
           .then((response) => {
-            const selectedList = this.$store.state.todoLists.find(function (list) {
-              return list.id === this
-            }, this.$store.state.selected)
-            const indexOfSelectedList = this.$store.state.todoLists.indexOf(selectedList)
-            const indexOfTask = this.$store.state.todoLists[indexOfSelectedList].tasks.indexOf(this.todo)
-            this.$store.state.todoLists[indexOfSelectedList].tasks[indexOfTask].mark_done = value
+            this.$store.getters.selectedTaskList.tasks.find(task => task.id === this.id).mark_done = value
           })
           .catch()
       }
@@ -135,13 +132,34 @@ export default {
       margin-top: 0;
     }
 
-    input[type='checkbox'] {
-      &:checked, &:not(:checked) {
-        width: 30px;
-        height: 30px;
-        margin-right: 20px;
-        cursor: pointer;
+    label {
+      position: relative;
+      color: #000;
+      font-weight: normal;
+      line-height: 30px;
+      vertical-align: middle;
+      cursor: pointer;
+      display: inline-block;
+      margin-right: 15px;
+      text-align: center;
+      text-indent: 0;
+      width: 30px;
+      height: 30px;
+      background: #FFF;
+      border: 3px solid #B2B2B2;
+      border-image: initial;
+
+      img {
+        position: absolute;
+        width: 35px;
+        height: 35px;
+        left: 3px;
+        bottom: 3px;
       }
+    }
+
+    input[type='checkbox'] {
+      display: none;
     }
 
     p {
