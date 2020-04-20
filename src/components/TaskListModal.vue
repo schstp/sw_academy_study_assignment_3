@@ -271,6 +271,12 @@ export default {
           margin-left: 30px;
         }
       }
+
+      p {
+        width: 461px;
+        font-size: 12px;
+        line-height: 14px;
+      }
     }
   }
 
@@ -316,6 +322,12 @@ export default {
         &:last-of-type {
           margin-left: 10px;
         }
+      }
+
+      p {
+        width: 251px;
+        font-size: 12px;
+        line-height: 14px;
       }
     }
   }
