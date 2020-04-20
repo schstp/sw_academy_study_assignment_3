@@ -184,4 +184,45 @@ export default {
     left: 5px;
     transform: rotate(-45deg);
   }
+  @media screen and (max-width: 740px) {
+    span {
+      font-size: 20px;
+    }
+    .custom-select-btn {
+      height: 50px;
+    }
+    .custom-option {
+      font-size: 20px
+    }
+  }
+  @media screen and (max-width: 530px) {
+    span {
+      font-size: 18px;
+    }
+    .custom-select-btn {
+      height: 40px;
+    }
+    .custom-option {
+      font-size: 18px
+    }
+  }
+  @media screen and (max-width: 430px) {
+    .custom-select-wrapper {
+      width: 280px;
+    }
+  }
+  @media screen and (max-width: 320px) {
+    span {
+      font-size: 14px;
+    }
+    .custom-select-btn {
+      height: 40px;
+    }
+    .custom-option {
+      font-size: 14px
+    }
+    .custom-select-wrapper {
+      width: 210px;
+    }
+  }
 </style>

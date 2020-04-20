@@ -320,4 +320,130 @@ export default {
       transform: scale(1);
     }
   }
+  @media screen and (max-width: 790px) {
+    .new-task-model-wrapper {
+      left: calc(50% - 350px);
+      width: 700px;
+    }
+  }
+
+  @media screen and (max-width: 740px) {
+    .new-task-model-wrapper {
+      top: calc(50% - 215px);
+      left: calc(50% - 250px);
+      width: 500px;
+      height: 430px;
+      border-radius: 10px;
+
+      label {
+        font-size: 30px;
+        width: 400px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      > div:last-of-type {
+        margin-top: 50px;
+      }
+      input {
+        width: 460px;
+        height: 50px;
+        font-size: 20px;
+
+        &::placeholder {
+          font-size: 20px;
+          line-height: 60px;
+        }
+      }
+
+      textarea {
+        width: 460px;
+        height: 80px;
+        font-size: 20px;
+      }
+
+      .importance {
+        width: 460px;
+        margin-top: 30px;
+      }
+
+      > div:last-of-type {
+        margin-top: 30px;
+      }
+
+      button {
+        width: 200px;
+        height: 50px;
+
+        font-size: 20px;
+
+        &:first-of-type {
+          margin-right: 30px;
+        }
+
+        &:last-of-type {
+          margin-left: 30px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 530px) {
+    .new-task-model-wrapper {
+      top: calc(50% - 205px);
+      left: calc(50% - 150px);
+      width: 300px;
+      height: 410px;
+      border-radius: 10px;
+
+      label {
+        font-size: 24px;
+        width: 250px;
+        margin-bottom: 30px;
+      }
+      > div:last-of-type {
+        margin-top: 20px;
+      }
+
+      input {
+        width: 250px;
+        height: 40px;
+        font-size: 18px;
+
+        &::placeholder {
+          font-size: 18px;
+          line-height: 60px;
+        }
+      }
+
+      textarea {
+        width: 250px;
+        height: 60px;
+        font-size: 18px;
+      }
+
+      .importance {
+        width: 250px;
+        margin-top: 30px;
+      }
+
+      > div:last-of-type {
+        margin-top: 40px;
+      }
+
+      button {
+        width: 120px;
+        height: 40px;;
+
+        font-size: 18px;
+
+        &:first-of-type {
+          margin-right: 10px;
+        }
+
+        &:last-of-type {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
 </style>

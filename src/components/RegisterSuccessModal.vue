@@ -165,4 +165,48 @@ export default {
       transform: scale(1);
     }
   }
+
+  @media screen and (max-width: 790px) {
+    .new-task-model-wrapper {
+      left: calc(50% - 350px);
+      width: 700px;
+    }
+  }
+
+  @media screen and (max-width: 530px) {
+    .new-task-model-wrapper {
+      top: calc(50% - 115px);
+      left: calc(50% - 150px);
+      width: 300px;
+      height: 230px;
+      border-radius: 10px;
+
+      label {
+        font-size: 24px;
+        width: 250px;
+        height: 80px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        line-height: 30px;
+      }
+      > div:last-of-type {
+        margin-top: 10px;
+      }
+
+      button {
+        width: 200px;
+        height: 40px;;
+
+        font-size: 18px;
+
+        &:first-of-type {
+          margin-right: 10px;
+        }
+
+        &:last-of-type {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
 </style>

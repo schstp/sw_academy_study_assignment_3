@@ -208,12 +208,14 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
       }
 
       &.importance {
         display: flex;
         align-items: center;
         width: 275px;
+        padding-left: 5px;
         font-family: Roboto, sans-serif;
         font-style: normal;
         font-weight: normal;
@@ -251,6 +253,254 @@ export default {
       div {
         display: flex;
         align-items: center;
+      }
+    }
+  }
+
+  @media screen and (max-width: 1920px) {
+    li {
+      p {
+        &.todo-titile {
+          max-width: 400px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    li {
+      height: 300px;
+
+      p {
+        margin: 0;
+
+        &.todo-titile {
+          max-width: 340px;
+        }
+      }
+
+      div {
+        &.description {
+          margin-top: 8px;
+          width: 400px;
+          height: 160px;
+        }
+        &.note-wrapper {
+          padding-top: 10px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 922px) {
+    li {
+      height: 370px;
+
+      p {
+        margin: 0;
+
+        &.todo-titile {
+          max-width: 220px;
+        }
+      }
+
+      div {
+        &.description {
+          width: 300px;
+          height: 200px;
+        }
+
+        &.note-wrapper {
+          div {
+            &:first-of-type {
+              order: 2;
+              padding-left: 5px;
+            }
+            &:last-of-type {
+              order: 1;
+              margin-bottom: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 820px) {
+    li {
+      height: 420px;
+
+      p {
+        margin: 0;
+
+        &.todo-titile {
+          max-width: 180px;
+        }
+      }
+
+      div {
+        &.description {
+          width: 240px;
+          height: 250px;
+        }
+
+        &.note-wrapper {
+          padding-top: 13px;
+          div {
+            &:first-of-type {
+              order: 2;
+              padding-left: 5px;
+            }
+            &:last-of-type {
+              order: 1;
+              margin-bottom: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    li {
+      height: 260px;
+
+      p {
+        margin: 0;
+
+        &.todo-titile {
+          max-width: 400px;
+        }
+      }
+
+      div {
+        &.description {
+          width: 500px;
+          height: 120px;
+        }
+
+        &.note-wrapper {
+          padding-top: 5px;
+          div {
+            &:first-of-type {
+              order: 1;
+              padding-left: 0;
+            }
+            &:last-of-type {
+              order: 2;
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 618px) {
+    li {
+      p {
+        &.todo-titile {
+          max-width: 300px;
+        }
+      }
+
+      div {
+        &.description {
+          font-size: 10px;
+          width: 300px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 530px) {
+    li {
+      height: 260px;
+      padding: 10px;
+      label {
+        margin-right: 10px;
+        width: 20px;
+        height: 20px;
+
+        img {
+          width: 25px;
+          height: 25px;
+          left: 3px;
+          bottom: 3px;
+        }
+      }
+
+      p {
+        margin: 0;
+
+        &.todo-titile {
+          max-width: 150px;
+          font-size: 18px;
+        }
+
+        &.created-time-stamp {
+          font-size: 14px;
+        }
+      }
+
+      div {
+        &.description {
+          width: 230px;
+          height: 120px;
+          margin-top: 15px;
+          margin-bottom: 25px;
+          margin-left: 37px;
+          font-size: 10px;
+        }
+
+        &.note-wrapper {
+          padding-top: 10px;
+          div {
+            &:first-of-type {
+              order: 2;
+              padding-left: 0;
+            }
+
+            &:last-of-type {
+              order: 1;
+              margin-bottom: 0;
+            }
+          }
+        }
+
+        &.importance {
+          padding-left: 0;
+          padding-bottom: 5px;
+          font-size: 14px;
+
+          > div > span {
+            margin: 0 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+
+            &.orange {
+              background-color: #FFA800;
+            }
+
+            &.yellow {
+              background-color: #edfc46;
+            }
+
+            &.green {
+              background-color: #5ED301;
+            }
+          }
+        }
+      }
+      div:first-of-type {
+        display: flex;
+        justify-content: space-between;
+
+        div {
+          display: flex;
+          align-items: center;
+        }
       }
     }
   }

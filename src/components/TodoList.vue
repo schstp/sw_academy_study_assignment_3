@@ -105,6 +105,7 @@ export default {
     changeSelectedTodoList: function (e) {
       this.$store.state.selected = this.id
       this.$store.state.todos = this.tasks
+      this.$emit('go-to-todos')
     },
     callTodoListEditDialog: function () {
       this.$store.state.taskListModalStatus = {
@@ -209,6 +210,23 @@ export default {
       div {
         display: flex;
         align-items: center;
+      }
+    }
+  }
+  @media screen and (max-width: 320px) {
+    li {
+      height: 80px;
+      padding: 10px;
+
+      p {
+        &.todo-list-titile {
+          font-size: 18px;
+        }
+
+        &.created-time-stamp {
+          margin-top: 12px;
+          font-size: 14px;
+        }
       }
     }
   }

@@ -46,4 +46,16 @@ export default {
       user-select: none;
     }
   }
+  @media screen and (max-width: 530px) {
+    div {
+      img {
+        width: 30px;
+        height: 30px;
+      }
+
+      span {
+        font-size: 18px;
+      }
+    }
+  }
 </style>

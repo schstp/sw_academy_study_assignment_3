@@ -5,6 +5,12 @@
                  v-on:show-modal-dialog="callTaskCreationDialog"
                  class="add-task-btn">
       </AddButton>
+      <div
+        v-if="isWindowNarrow"
+        class="back-btn-wrapper"><img
+        :src="`./${puplicPath}/img/arrow-back.png`"
+      @click="backToTodoListsView">
+      </div>
       <p v-if="isEmpty" class="empty-list">Список подзадач пуст</p>
       <ul v-else>
         <transition-group name="list">
@@ -21,6 +27,11 @@ import Todo from './Todo'
 
 export default {
   name: 'TodosContainer',
+  data: function () {
+    return {
+      puplicPath: process.env.BASE_URL
+    }
+  },
   computed: {
     todos: function () {
       if (this.$store.state.selected === null) return []
@@ -36,6 +47,9 @@ export default {
     },
     isEmpty: function () {
       return this.$store.state.selected ? this.$store.getters.selectedTaskList.tasks.length === 0 : true
+    },
+    isWindowNarrow: function () {
+      return this.$parent.$data.isWindowNarrow
     }
   },
   components: {
@@ -48,6 +62,9 @@ export default {
         method: 'POST',
         isInProcess: true
       }
+    },
+    backToTodoListsView: function () {
+      this.$emit('back-to-lists')
     }
   }
 }
@@ -55,12 +72,19 @@ export default {
 
 <style lang="scss" scoped>
   .right-container {
+    position: relative;
     background-color: #fffef7;
     border-radius: 5px;
     padding: 0 10px;
     padding-top: 10px;
+    height: calc(100vh - 50px);
   }
-
+  .back-btn-wrapper {
+    position: absolute;
+    top: 24px;
+    right: 20px;
+    cursor: pointer;
+  }
   .add-task-btn {
     margin-bottom: 25px;
   }
@@ -110,5 +134,20 @@ export default {
   }
   .list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */ {
     opacity: 0;
+  }
+  @media screen and (max-width: 768px) {
+    .right-container {
+      padding: 15px !important;
+      background-color: #FFFFFF;
+    }
+  }
+  @media screen and (max-width: 530px) {
+    .back-btn-wrapper {
+      top: 22px;
+      > img {
+        width: 25px;
+        height: auto;
+      }
+    }
   }
 </style>

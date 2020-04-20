@@ -58,6 +58,11 @@ export default {
 
   @media screen and (max-width: 320px) {
     #navbar {
+      height: 60px;
+      div {
+        font-size: 18px;
+        line-height: 28px;
+      }
 
       .content-wrapper {
         width: 90%;

@@ -63,4 +63,20 @@ export default {
   .bounce-leave-active {
     animation: bounce-in .5s reverse;
   }
+
+  @media screen and (max-width: 768px) {
+    .notifications-box-wrapper {
+      top: -45px;
+      height: 40px;
+      right: calc(50% - 200px);
+    }
+  }
+
+  @media screen and (max-width: 430px) {
+    .notifications-box-wrapper {
+      width: 280px;
+      top: -45px;
+      right: calc(50% - 140px);
+    }
+  }
 </style>

@@ -33,4 +33,10 @@ export default {
       border: solid 1px #B2B2B2;
     }
   }
+  @media screen and (max-width: 530px){
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
 </style>

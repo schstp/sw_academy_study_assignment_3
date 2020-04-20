@@ -11,6 +11,7 @@ export default new Vuex.Store({
     token: localStorage.getItem('token') || '',
     user: JSON.parse(localStorage.getItem('user')) || {},
     isRegistrationFinished: false,
+    isDataLoaded: false,
     filterStatus: 0,
     todoLists: [],
     filtered: [],
@@ -239,14 +240,15 @@ export default new Vuex.Store({
       })
     },
 
-    logout ({ commit }, user) {
+    logout ({ commit, state }, user) {
       return new Promise((resolve, reject) => {
         commit('logout')
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        this.state.todoLists = []
-        this.state.todos = []
-        this.state.selected = null
+        state.todoLists = []
+        state.todos = []
+        state.selected = null
+        state.isDataLoaded = false
         delete axios.defaults.headers.common.Authorization
         resolve()
       })

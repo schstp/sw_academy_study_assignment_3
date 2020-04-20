@@ -8,7 +8,7 @@
     </AddButton>
     <p v-if="isEmpty" class="empty-list">Список задач пуст.</p>
     <ul v-else>
-      <TodoList v-for="todoList in todoLists" :key="todoList.id" :todo-list="todoList"></TodoList>
+      <TodoList v-for="todoList in todoLists" :key="todoList.id" :todo-list="todoList" v-on:go-to-todos="showTodos"></TodoList>
     </ul>
   </div>
 
@@ -47,6 +47,9 @@ export default {
         method: 'POST',
         isInProcess: true
       }
+    },
+    showTodos: function () {
+      this.$emit('go-to-todos')
     }
   },
   components: {
@@ -111,6 +114,46 @@ export default {
     }
     &::-webkit-resizer {
       background-color:#666;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    #left-container {
+      background-color: #FFFFFF;
+      padding: 0 15px;
+    }
+  }
+  @media screen and (max-width: 530px) {
+    #left-container {
+      ul {
+        height: calc(100% - 330px);
+      }
+    }
+  }
+  @media screen and (max-width: 370px) {
+    #left-container {
+      width: 90% !important;
+    }
+  }
+  @media screen and (max-width: 340px) {
+    #left-container {
+      ul {
+        height: calc(100vh - 330px);
+      }
+      .filter {
+        margin-top: 35px;
+        margin-bottom: 20px;
+      }
+      .add-task-btn {
+        margin-bottom: 40px;
+      }
+    }
+  }
+  @media screen and (max-width: 320px) {
+    #left-container {
+      ul {
+        height: calc(100vh - 280px);
+      }
     }
   }
 </style>

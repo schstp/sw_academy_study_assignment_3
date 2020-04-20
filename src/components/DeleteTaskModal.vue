@@ -177,4 +177,75 @@ export default {
       transform: scale(1);
     }
   }
+
+  @media screen and (max-width: 790px) {
+    .new-task-model-wrapper {
+      left: calc(50% - 350px);
+      width: 700px;
+    }
+  }
+
+  @media screen and (max-width: 740px) {
+    .new-task-model-wrapper {
+      top: calc(50% - 175px);
+      left: calc(50% - 250px);
+      width: 500px;
+      height: 350px;
+      border-radius: 10px;
+
+      label {
+        font-size: 30px;
+        width: 400px;
+      }
+      > div:last-of-type {
+        margin-top: 50px;
+      }
+      button {
+        width: 200px;
+        height: 50px;
+
+        font-size: 20px;
+
+        &:first-of-type {
+          margin-right: 30px;
+        }
+
+        &:last-of-type {
+          margin-left: 30px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 530px) {
+    .new-task-model-wrapper {
+      top: calc(50% - 115px);
+      left: calc(50% - 150px);
+      width: 300px;
+      height: 230px;
+
+      label {
+        font-size: 24px;
+        width: 250px;
+        margin-bottom: 20px;
+      }
+      > div:last-of-type {
+        margin-top: 20px;
+      }
+      button {
+        width: 120px;
+        height: 40px;;
+
+        font-size: 18px;
+
+        &:first-of-type {
+          margin-right: 10px;
+        }
+
+        &:last-of-type {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
 </style>
